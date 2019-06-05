@@ -1,0 +1,43 @@
+-- Role
+CREATE TABLE role (
+  id INT PRIMARY KEY,
+  name VARCHAR NOT NULL,
+  description VARCHAR NOT NULL
+);
+INSERT INTO role VALUES
+  (1, 'ADMIN', 'Administrators can create new projects to be funded and manage other platform components.');
+INSERT INTO role VALUES
+  (2, 'USER', 'Regular users invest in offered projects, track their portfolio and manage funds on their wallet.');
+
+-- User
+CREATE TABLE user_info (
+    id SERIAL PRIMARY KEY,
+    verified_email VARCHAR NOT NULL,
+    phone_number VARCHAR(32) NOT NULL,
+    country VARCHAR(32) NOT NULL,
+    date_of_birth VARCHAR(10) NOT NULL,
+    identyum_number VARCHAR NOT NULL,
+    id_type VARCHAR(32) NOT NULL,
+    id_number VARCHAR NOT NULL,
+    personal_id VARCHAR NOT NULL,
+    first_name VARCHAR(30),
+    last_name VARCHAR(30),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE TABLE app_user (
+    id SERIAL PRIMARY KEY,
+    uuid uuid NOT NULL,
+    email VARCHAR NOT NULL,
+    password VARCHAR(60),
+    role_id INT REFERENCES role(id) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    auth_method VARCHAR(8) NOT NULL,
+    enabled BOOLEAN NOT NULL,
+    user_info_id INT REFERENCES user_info(id) NOT NULL
+);
+CREATE TABLE mail_token (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES app_user(id) NOT NULL,
+    token UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);

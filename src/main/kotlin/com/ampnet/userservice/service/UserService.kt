@@ -1,0 +1,20 @@
+package com.ampnet.userservice.service
+
+import com.ampnet.userservice.enums.AuthMethod
+import com.ampnet.userservice.enums.UserRoleType
+import com.ampnet.userservice.persistence.model.User
+import com.ampnet.userservice.persistence.model.UserInfo
+import com.ampnet.userservice.service.pojo.IdentyumUserModel
+import java.util.UUID
+
+interface UserService {
+    fun createUserInfo(identyumUser: IdentyumUserModel): UserInfo
+    fun createUser(identyumUuid: String, email: String, password: String?, authMethod: AuthMethod): User
+    fun findAll(): List<User>
+    fun delete(id: Int)
+    fun find(username: String): User?
+    fun find(id: Int): User?
+    fun confirmEmail(token: UUID): User?
+    fun resendConfirmationMail(user: User)
+    fun changeUserRole(userId: Int, role: UserRoleType): User
+}
