@@ -34,6 +34,7 @@ class SocialServiceImpl : SocialService {
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     @Throws(SocialException::class)
     override fun getGoogleEmail(token: String): String {
         logger.debug { "Getting Google user info" }

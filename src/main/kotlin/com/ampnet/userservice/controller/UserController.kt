@@ -31,7 +31,6 @@ class UserController(private val userService: UserService) {
         return ResponseEntity.notFound().build()
     }
 
-    // TODO: maybe extract to admin controller
     @GetMapping("/users")
     @PreAuthorize("hasAuthority(T(com.ampnet.userservice.enums.PrivilegeType).PRA_PROFILE)")
     fun getUsers(): ResponseEntity<UsersListResponse> {

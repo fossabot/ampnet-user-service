@@ -33,6 +33,7 @@ enum class UserRoleType(val id: Int) {
     abstract fun getPrivileges(): List<PrivilegeType>
 }
 
+@Suppress("MagicNumber")
 enum class OrganizationRoleType(val id: Int) {
 
     ORG_ADMIN(3) {

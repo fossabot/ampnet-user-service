@@ -21,7 +21,6 @@ class CustomAuthenticationProvider(
 
     private val hidden = "Hidden"
 
-    // TODO: Analyze security architecture (jwt, custom auth provider, etc)
     override fun authenticate(authentication: Authentication): Authentication {
         val email = authentication.name
         val user = userService.find(email)

@@ -77,5 +77,6 @@ class TokenProvider(val applicationProperties: ApplicationProperties, val object
         }
     }
 
+    @Suppress("MagicNumber")
     private fun minutesToMilliSeconds(minutes: Int): Int = minutes * 60 * 1000
 }

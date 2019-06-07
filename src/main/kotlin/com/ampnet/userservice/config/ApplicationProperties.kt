@@ -12,6 +12,7 @@ class ApplicationProperties {
     val identyum: IdentyumProperties = IdentyumProperties()
 }
 
+@Suppress("MagicNumber")
 class JwtProperties {
     lateinit var signingKey: String
     var validityInMinutes: Int = 60
