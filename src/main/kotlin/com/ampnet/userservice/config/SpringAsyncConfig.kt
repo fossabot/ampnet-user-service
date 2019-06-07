@@ -13,6 +13,7 @@ import java.lang.reflect.Method
 @EnableAsync
 class SpringAsyncConfig : AsyncConfigurer {
 
+    @Suppress("MagicNumber")
     override fun getAsyncExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
         executor.corePoolSize = 1

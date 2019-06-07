@@ -65,6 +65,7 @@ class IdentyumServiceImpl(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun decrypt(value: String, key: String, reportUuid: String): String {
         try {
             val md = MessageDigest.getInstance("MD5")

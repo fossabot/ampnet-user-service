@@ -148,6 +148,7 @@ class UserServiceImpl(
         return user
     }
 
+    @Suppress("ThrowsCount")
     private fun createUserInfoFromIdentyumUser(identyumUser: IdentyumUserModel): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance()
         val document = identyumUser.document.firstOrNull() ?: throw IdentyumException("Missing document")
