@@ -8,6 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.7.RELEASE"
     id("com.google.cloud.tools.jib") version "1.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
+    id("io.gitlab.arturbosch.detekt").version("1.0.0-RC14")
     jacoco
 }
 
@@ -20,6 +21,7 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -107,4 +109,10 @@ tasks.jacocoTestCoverageVerification {
         }
     }
     mustRunAfter(tasks.jacocoTestReport)
+}
+
+detekt {
+    toolVersion = "1.0.0-RC14"
+    input = files("src/main/kotlin")
+    filters = ".*/resources/.*,.*/build/.*"
 }
