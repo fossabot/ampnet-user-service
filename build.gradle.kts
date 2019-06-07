@@ -99,6 +99,7 @@ tasks.jacocoTestReport {
     classDirectories.setFrom(fileTree("$buildDir/classes/kotlin/main").apply{
         exclude("**/model/**", "**/pojo/**")
     })
+    dependsOn(tasks.test)
 }
 tasks.jacocoTestCoverageVerification {
     violationRules {
@@ -115,4 +116,8 @@ detekt {
     toolVersion = "1.0.0-RC14"
     input = files("src/main/kotlin")
     filters = ".*/resources/.*,.*/build/.*"
+}
+
+task("qualityCheck") {
+    dependsOn(tasks.ktlintCheck, tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification, tasks.detekt)
 }
