@@ -113,7 +113,6 @@ tasks.jacocoTestCoverageVerification {
 }
 
 detekt {
-    toolVersion = "1.0.0-RC14"
     input = files("src/main/kotlin")
     filters = ".*/resources/.*,.*/build/.*"
 }
