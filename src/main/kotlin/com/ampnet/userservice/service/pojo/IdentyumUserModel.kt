@@ -64,6 +64,9 @@ data class IdentyumDocumentModel(
     @JsonProperty("docBackImg")
     val docBackImg: String, // base64 encoded
 
+    @JsonProperty("docFaceImg")
+    val docFaceImg: String, // base64 encoded
+
     @JsonProperty("dateOfBirth")
     val dateOfBirth: String,
 

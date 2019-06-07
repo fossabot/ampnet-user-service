@@ -9,25 +9,17 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.impl.UserServiceImpl
 import com.ampnet.userservice.service.pojo.IdentyumUserModel
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 import java.time.ZonedDateTime
 
 @Import(JsonConfig::class)
-// @Disabled
 class UserServiceTest : JpaServiceTestBase() {
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
-
-    private val mailService = Mockito.mock(MailService::class.java)
 
     private val admin: User by lazy {
         databaseCleanerService.deleteAllUsers()
@@ -63,10 +55,10 @@ class UserServiceTest : JpaServiceTestBase() {
                 userRepository.delete(it)
             }
         }
-        suppose("User created new account") {
-            val service = createUserService(testContext.applicationProperties)
-//            testContext.mailUser = service.create(createUserServiceRequest())
-        }
+        // suppose("User created new account") {
+        //     val service = createUserService(testContext.applicationProperties)
+        //    testContext.mailUser = service.createUser(createUserServiceRequest())
+        // }
 
         verify("Created user account is enabled") {
             assertThat(user.enabled).isTrue()
@@ -95,7 +87,6 @@ class UserServiceTest : JpaServiceTestBase() {
             val userInfo = createUserInfo()
             testContext.mailUser = service.createUser(
                     userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
-//            createUser(testContext.email)
         }
 
         verify("Created user account is enabled") {
@@ -191,6 +182,7 @@ class UserServiceTest : JpaServiceTestBase() {
                         "permanent": false,
                         "docFrontImg": "base64 of image",
                         "docBackImg": "base64 of image",
+                        "docFaceImg": "base64 of image",
                         "dateOfBirth": "1950-01-01",
                         "dateOfExpiry": "2021-01-11",
                         "dateOfIssue": "2016-01-11"

@@ -28,6 +28,9 @@ data class IdentyumPayloadRequest(
 
     val payload: String,
 
+    @JsonProperty("payloadSignature")
+    val payloadSignature: String,
+
     @JsonProperty("tsCreated")
     val tsCreated: String
 )

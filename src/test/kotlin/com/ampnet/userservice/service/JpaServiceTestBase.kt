@@ -1,7 +1,6 @@
 package com.ampnet.userservice.service
 
 import com.ampnet.userservice.TestBase
-import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.config.DatabaseCleanerService
 import com.ampnet.userservice.config.PasswordEncoderConfig
 import com.ampnet.userservice.enums.AuthMethod
@@ -12,7 +11,9 @@ import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
@@ -41,13 +42,10 @@ abstract class JpaServiceTestBase : TestBase() {
     protected lateinit var mailTokenRepository: MailTokenRepository
     @Autowired
     protected lateinit var userInfoRepository: UserInfoRepository
+    @Autowired
+    protected lateinit var objectMapper: ObjectMapper
 
-    protected val applicationProperties: ApplicationProperties by lazy {
-        // add additional properties as needed
-        val applicationProperties = ApplicationProperties()
-        applicationProperties.mail.enabled = true
-        applicationProperties
-    }
+    protected val mailService = Mockito.mock(MailService::class.java)
 
     protected fun createUser(email: String, firstName: String = "first", lastName: String = "last"): User {
         return createUser(email, AuthMethod.EMAIL, createUserInfo(firstName, lastName, email))

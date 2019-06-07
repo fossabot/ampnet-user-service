@@ -65,7 +65,7 @@ class IdentyumServiceImpl(
         }
     }
 
-    private fun decrypt(value: String, key: String, reportUuid: String): String {
+    fun decrypt(value: String, key: String, reportUuid: String): String {
         try {
             val md = MessageDigest.getInstance("MD5")
             val keyMD5 = md.digest(key.toByteArray())
@@ -74,11 +74,10 @@ class IdentyumServiceImpl(
             val skeySpec = SecretKeySpec(keyMD5, "AES")
             val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
             cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv)
-            val decrypted = cipher.doFinal(Base64.getDecoder().decode(value)).toString()
-            logger.debug { "Decrypted data: $decrypted" }
-            return decrypted
+            val decrypted = cipher.doFinal(Base64.getDecoder().decode(value))
+            return String(decrypted)
         } catch (ex: Exception) {
-            throw IdentyumException("Could not decode Identyum payload")
+            throw IdentyumException("Could not decode Identyum payload", ex)
         }
     }
 

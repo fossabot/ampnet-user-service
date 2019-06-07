@@ -24,19 +24,19 @@ data class UserInfo(
     @Column(nullable = false)
     var verifiedEmail: String,
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     var phoneNumber: String,
 
     @Column(nullable = false)
     var country: String,
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     var dateOfBirth: String,
 
     @Column(nullable = false)
     var identyumNumber: String,
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     var idType: String,
 
     @Column(nullable = false)

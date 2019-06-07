@@ -14,14 +14,14 @@ CREATE TABLE user_info (
     id SERIAL PRIMARY KEY,
     verified_email VARCHAR NOT NULL,
     phone_number VARCHAR(32) NOT NULL,
-    country VARCHAR(32) NOT NULL,
+    country VARCHAR NOT NULL,
     date_of_birth VARCHAR(10) NOT NULL,
     identyum_number VARCHAR NOT NULL,
     id_type VARCHAR(32) NOT NULL,
     id_number VARCHAR NOT NULL,
     personal_id VARCHAR NOT NULL,
-    first_name VARCHAR(30),
-    last_name VARCHAR(30),
+    first_name VARCHAR,
+    last_name VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 CREATE TABLE app_user (
@@ -35,6 +35,8 @@ CREATE TABLE app_user (
     enabled BOOLEAN NOT NULL,
     user_info_id INT REFERENCES user_info(id) NOT NULL
 );
+
+-- Mail
 CREATE TABLE mail_token (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES app_user(id) NOT NULL,

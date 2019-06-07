@@ -38,7 +38,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     runtimeOnly("org.postgresql:postgresql")
 
-    implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     implementation("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
     implementation("io.github.microutils:kotlin-logging:1.6.26")
     implementation("net.logstash.logback:logstash-logback-encoder:5.3")
@@ -53,6 +54,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.subethamail:subethasmtp:3.1.7")
+
+    // TODO: remove, only for java testing
+    testImplementation("com.google.code.gson:gson:2.8.5")
+    testImplementation("commons-io:commons-io:2.6")
 }
 
 tasks.withType<KotlinCompile> {
@@ -67,10 +72,10 @@ tasks.test {
 }
 
 jib {
-    val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: "dockerUsername"
-    val dockerPassword: String = System.getenv("DOCKER_PASSWORD") ?: "dockerPassword"
-    val identyumUsername: String = System.getenv("IDENTYUM_USERNAME") ?: "identyumUsername"
-    val identyumPassword: String = System.getenv("IDENTYUM_PASSWORD") ?: "identyumPassword"
+    val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: "DOCKER_USERNAME"
+    val dockerPassword: String = System.getenv("DOCKER_PASSWORD") ?: "DOCKER_PASSWORD"
+    val identyumUsername: String = System.getenv("IDENTYUM_USERNAME") ?: "IDENTYUM_USERNAME"
+    val identyumPassword: String = System.getenv("IDENTYUM_PASSWORD") ?: "IDENTYUM_PASSWORD"
 
     to {
         image = "ampnet/user-service:$version"
@@ -94,7 +99,7 @@ tasks.jacocoTestReport {
         html.destination = file("$buildDir/reports/jacoco/html")
     }
     sourceDirectories.setFrom(listOf(file("${project.projectDir}/src/main/kotlin")))
-    classDirectories.setFrom(fileTree("$buildDir/classes/kotlin/main").apply{
+    classDirectories.setFrom(fileTree("$buildDir/classes/kotlin/main").apply {
         exclude("**/model/**", "**/pojo/**")
     })
 }
