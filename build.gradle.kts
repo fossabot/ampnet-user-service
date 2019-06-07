@@ -8,6 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.7.RELEASE"
     id("com.google.cloud.tools.jib") version "1.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
+    jacoco
 }
 
 val jjwtVersion = "0.10.6"
@@ -83,4 +84,27 @@ jib {
         useCurrentTimestamp = true
         environment = mapOf("IDENTYUM_USERNAME" to identyumUsername, "IDENTYUM_PASSWORD" to identyumPassword)
     }
+}
+
+jacoco.toolVersion = "0.8.4"
+tasks.jacocoTestReport {
+    reports {
+        xml.isEnabled = false
+        csv.isEnabled = false
+        html.destination = file("$buildDir/reports/jacoco/html")
+    }
+    sourceDirectories.setFrom(listOf(file("${project.projectDir}/src/main/kotlin")))
+    classDirectories.setFrom(fileTree("$buildDir/classes/kotlin/main").apply{
+        exclude("**/model/**", "**/pojo/**")
+    })
+}
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.7".toBigDecimal()
+            }
+        }
+    }
+    mustRunAfter(tasks.jacocoTestReport)
 }
