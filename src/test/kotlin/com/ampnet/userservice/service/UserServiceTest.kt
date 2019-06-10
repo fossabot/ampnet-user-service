@@ -55,13 +55,16 @@ class UserServiceTest : JpaServiceTestBase() {
                 userRepository.delete(it)
             }
         }
-        // suppose("User created new account") {
-        //     val service = createUserService(testContext.applicationProperties)
-        //    testContext.mailUser = service.createUser(createUserServiceRequest())
-        // }
+        suppose("User created new account") {
+            val service = createUserService(testContext.applicationProperties)
+            val userInfo = createUserInfo()
+            testContext.mailUser = service.createUser(
+                userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
+        }
 
-        verify("Created user account is enabled") {
-            assertThat(user.enabled).isTrue()
+        verify("Created user account is connected and enabled") {
+            assertThat(testContext.mailUser.userInfo.connected).isTrue()
+            assertThat(testContext.mailUser.enabled).isTrue()
         }
         verify("Sending mail confirmation was not called") {
             Mockito.verify(mailService, Mockito.never()).sendConfirmationMail(Mockito.anyString(), Mockito.anyString())
@@ -89,7 +92,8 @@ class UserServiceTest : JpaServiceTestBase() {
                     userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
         }
 
-        verify("Created user account is enabled") {
+        verify("Created user account is connected and disabled") {
+            assertThat(testContext.mailUser.userInfo.connected).isTrue()
             assertThat(testContext.mailUser.enabled).isFalse()
         }
         verify("Sending mail confirmation was called") {
@@ -207,6 +211,7 @@ class UserServiceTest : JpaServiceTestBase() {
         assertThat(userInfo.personalId).isEqualTo(document.personalIdentificationNumber.value)
         assertThat(userInfo.identyumNumber).isEqualTo(identyumUser.identyumUuid)
         assertThat(userInfo.createdAt).isBeforeOrEqualTo(ZonedDateTime.now())
+        assertThat(userInfo.connected).isFalse()
     }
 
     private fun createUserService(properties: ApplicationProperties): UserService {

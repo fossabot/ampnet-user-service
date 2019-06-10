@@ -46,5 +46,8 @@ data class UserInfo(
     var personalId: String,
 
     @Column(nullable = false)
-    var createdAt: ZonedDateTime
+    var createdAt: ZonedDateTime,
+
+    @Column(nullable = false)
+    var connected: Boolean
 )

@@ -59,6 +59,7 @@ abstract class JpaServiceTestBase : TestBase() {
             enabled = true
             role = roleRepository.getOne(UserRoleType.USER.id)
             this.userInfo = userInfo
+            this.userInfo.connected = true
             uuid = UUID.randomUUID()
         }
         return userRepository.save(user)
@@ -82,6 +83,7 @@ abstract class JpaServiceTestBase : TestBase() {
             idNumber = "1242342"
             personalId = "324242332"
             createdAt = ZonedDateTime.now()
+            connected = false
         }
         return userInfoRepository.save(userInfo)
     }

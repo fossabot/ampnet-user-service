@@ -22,7 +22,8 @@ CREATE TABLE user_info (
     personal_id VARCHAR NOT NULL,
     first_name VARCHAR,
     last_name VARCHAR,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    connected BOOLEAN NOT NULL
 );
 CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,

@@ -138,6 +138,7 @@ class UserServiceImpl(
             this.createdAt = ZonedDateTime.now()
             this.role = userRole
             this.userInfo = userInfo
+            this.userInfo.connected = true
             this.uuid = getRandomUuid()
             this.enabled = true
         }
@@ -162,6 +163,7 @@ class UserServiceImpl(
             idNumber = document.docNumber
             personalId = document.personalIdentificationNumber.value
             createdAt = ZonedDateTime.now()
+            connected = false
         }
         return userInfo
     }

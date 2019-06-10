@@ -114,6 +114,7 @@ abstract class ControllerTestBase : TestBase() {
             idNumber = "1242342"
             personalId = "324242332"
             createdAt = ZonedDateTime.now()
+            connected = true
         }
         return userInfoRepository.save(userInfo)
     }
