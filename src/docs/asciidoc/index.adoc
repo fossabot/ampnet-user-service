@@ -1,0 +1,115 @@
+= AMPnet Crowdfunding - User Service API documentation
+:toc: left
+:sectnums:
+:toclevels: 2
+:source-highlighter: prettify
+:docinfo: shared
+
+== Registration API
+Collection of endpoints for registering users
+
+=== Social method - Facebook and Google
+
+==== Successful user signup (GOOGLE method)
+.Request
+include::{snippets}/RegistrationControllerTest/signupUsingGoogleMethod/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/signupUsingGoogleMethod/http-response.adoc[]
+
+=== Email method
+
+==== Successful user signup
+.Request
+include::{snippets}/RegistrationControllerTest/mustBeAbleToSignUpUser/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustBeAbleToSignUpUser/http-response.adoc[]
+
+==== Incomplete signup information
+.Request
+include::{snippets}/RegistrationControllerTest/incompleteSignupRequestShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/incompleteSignupRequestShouldFail/http-response.adoc[]
+
+==== Signup information complete but invalid
+
+===== Empty first name
+.Request
+include::{snippets}/RegistrationControllerTest/emptyNameSignupRequestShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/emptyNameSignupRequestShouldFail/http-response.adoc[]
+
+===== Invalid email
+.Request
+include::{snippets}/RegistrationControllerTest/invalidEmailSignupRequestShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/invalidEmailSignupRequestShouldFail/http-response.adoc[]
+
+===== Short password
+.Request
+include::{snippets}/RegistrationControllerTest/shortPasswordSignupRequestShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/shortPasswordSignupRequestShouldFail/http-response.adoc[]
+
+===== Invalid phone number
+.Request
+include::{snippets}/RegistrationControllerTest/invalidPhoneNumberSignupRequestShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/invalidPhoneNumberSignupRequestShouldFail/http-response.adoc[]
+
+==== Signup failed because user exists
+.Request
+include::{snippets}/RegistrationControllerTest/signupShouldFailIfUserAlreadyExists/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/signupShouldFailIfUserAlreadyExists/http-response.adoc[]
+
+==== Email confirmation
+
+===== Successful Email confirmation
+.Request
+include::{snippets}/RegistrationControllerTest/mustBeAbleToConfirmEmail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustBeAbleToConfirmEmail/http-response.adoc[]
+
+===== Resend Email confirmation
+.Request
+include::{snippets}/RegistrationControllerTest/mustBeAbleToResendConfirmationEmail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustBeAbleToResendConfirmationEmail/http-response.adoc[]
+
+===== Failed Email confirmation, invalid token format
+.Request
+include::{snippets}/RegistrationControllerTest/mustGetBadRequestForInvalidTokenFormat/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustGetBadRequestForInvalidTokenFormat/http-response.adoc[]
+
+===== Failed Email confirmation, non existing token
+.Request
+include::{snippets}/RegistrationControllerTest/mustGetNotFoundRandomToken/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustGetNotFoundRandomToken/http-response.adoc[]
+
+===== Failed Email confirmation, token expired
+.Request
+include::{snippets}/RegistrationControllerTest/mustNotBeAbleToConfirmEmailWithExpiredToken/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustNotBeAbleToConfirmEmailWithExpiredToken/http-response.adoc[]
+
+==== Check Email
+
+===== Email used
+.Request
+include::{snippets}/RegistrationControllerTest/mustReturnTrueIfEmailIsUsed/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustReturnTrueIfEmailIsUsed/http-response.adoc[]
+
+===== Email not used
+.Request
+include::{snippets}/RegistrationControllerTest/mustReturnFalseForUnusedEmail/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustReturnFalseForUnusedEmail/http-response.adoc[]
+
+=== Identyum token
+.Request
+include::{snippets}/IdentyumControllerTest/mustBeAbleToGetIdentyumToken/http-request.adoc[]
+.Response
+include::{snippets}/IdentyumControllerTest/mustBeAbleToGetIdentyumToken/http-response.adoc[]
