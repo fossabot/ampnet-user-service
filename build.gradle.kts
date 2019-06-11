@@ -9,6 +9,7 @@ plugins {
     id("com.google.cloud.tools.jib") version "1.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
     id("io.gitlab.arturbosch.detekt").version("1.0.0-RC14")
+    id("org.asciidoctor.convert") version "2.2.0"
     jacoco
 }
 
@@ -124,4 +125,15 @@ detekt {
 
 task("qualityCheck") {
     dependsOn(tasks.ktlintCheck, tasks.jacocoTestReport, tasks.jacocoTestCoverageVerification, tasks.detekt)
+}
+
+tasks.asciidoctor {
+    attributes(mapOf("snippets" to file("build/generated-snippets")))
+    dependsOn(tasks.test)
+}
+
+tasks.register<Copy>("copyDocs") {
+    from(file("$buildDir/asciidoc/html5"))
+    into(file("src/main/resources/static/docs"))
+    dependsOn(tasks.asciidoctor)
 }
