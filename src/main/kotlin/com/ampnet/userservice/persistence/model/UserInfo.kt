@@ -16,6 +16,9 @@ data class UserInfo(
     val id: Int,
 
     @Column(nullable = false)
+    var webSessionUuid: String,
+
+    @Column(nullable = false)
     var firstName: String,
 
     @Column(nullable = false)

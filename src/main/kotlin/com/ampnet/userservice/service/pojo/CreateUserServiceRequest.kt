@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull
 data class CreateUserServiceRequest(
 
     @NotNull
-    val identyumUuid: String,
+    val webSessionUuid: String,
 
     @EmailConstraint
     @NotNull

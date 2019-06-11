@@ -9,16 +9,12 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.impl.UserServiceImpl
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
-import com.ampnet.userservice.service.pojo.IdentyumDocumentModel
-import com.ampnet.userservice.service.pojo.IdentyumUserModel
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import org.springframework.context.annotation.Import
-import java.time.ZonedDateTime
 
 @Import(JsonConfig::class)
 class UserServiceTest : JpaServiceTestBase() {
@@ -50,7 +46,7 @@ class UserServiceTest : JpaServiceTestBase() {
             val service = createUserService(testContext.applicationProperties)
             val userInfo = createUserInfo()
             val request = CreateUserServiceRequest(
-                userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
+                userInfo.webSessionUuid, testContext.email, "password", AuthMethod.EMAIL)
             testContext.user = service.createUser(request)
         }
 
@@ -79,7 +75,7 @@ class UserServiceTest : JpaServiceTestBase() {
             val service = createUserService(testContext.applicationProperties)
             val userInfo = createUserInfo()
             val request = CreateUserServiceRequest(
-                userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
+                userInfo.webSessionUuid, testContext.email, "password", AuthMethod.EMAIL)
             testContext.user = service.createUser(request)
         }
 
@@ -144,78 +140,6 @@ class UserServiceTest : JpaServiceTestBase() {
         }
     }
 
-    @Test
-    fun mustBeAbleToCreateUserFromIdentyumUser() {
-        suppose("There are no users") {
-            databaseCleanerService.deleteAllUsers()
-        }
-
-        verify("Identyum request in proper format") {
-            val userIdentyumJson = """
-                {
-                    "identyumUuid": "1234-1234-1234-1234",
-                    "emails": [{
-                        "type": "DEFAULT",
-                        "email": "neki.mail@mail.com"
-                    }],
-                    "phones": [{
-                        "type": "MOBILE",
-                        "phoneNumber": "+385989999888"
-                    }],
-                    "document": [
-                        {
-                            "type": "PERSONAL_ID_CARD",
-                            "countryCode": "HRV",
-                            "firstName": "NETKO",
-                            "lastName": "NEKO",
-                            "docNumber": "112661111",
-                            "citizenship": "HRV",
-                            "address": {
-                                "city": " GRAD ZAGREB",
-                                "county": "ZAGREB",
-                                "streetAndNumber": "ULICA NEGDJE 3"
-                            },
-                            "issuingAuthority": "PU ZAGREBAČKA",
-                            "personalIdentificationNumber": {
-                                "type": "OIB",
-                                "value": "11111111111"
-                            },
-                            "resident": true,
-                            "documentBilingual": false,
-                            "permanent": false,
-                            "docFrontImg": "base64 of image",
-                            "docBackImg": "base64 of image",
-                            "docFaceImg": "base64 of image",
-                            "dateOfBirth": "1950-01-01",
-                            "dateOfExpiry": "2021-01-11",
-                            "dateOfIssue": "2016-01-11"
-                        }
-                    ]
-                }
-            """.trimIndent()
-            testContext.identyumUser = objectMapper.readValue(userIdentyumJson)
-            testContext.identyumDocument = testContext.identyumUser.document.first()
-        }
-        verify("Service can create UserInfo from IdentyumUser") {
-            val service = createUserService(testContext.applicationProperties)
-            service.createUserInfo(testContext.identyumUser)
-        }
-        verify("UserInfo is created") {
-            val optionalUserInfo = userInfoRepository.findByIdentyumNumber("1234-1234-1234-1234")
-            assertThat(optionalUserInfo).isPresent
-            val userInfo = optionalUserInfo.get()
-            assertThat(userInfo.id).isNotNull()
-            assertThat(userInfo.idType).isEqualTo(testContext.identyumDocument.type)
-            assertThat(userInfo.idNumber).isEqualTo(testContext.identyumDocument.docNumber)
-            assertThat(userInfo.country).isEqualTo(testContext.identyumDocument.countryCode)
-            assertThat(userInfo.dateOfBirth).isEqualTo(testContext.identyumDocument.dateOfBirth)
-            assertThat(userInfo.personalId).isEqualTo(testContext.identyumDocument.personalIdentificationNumber.value)
-            assertThat(userInfo.identyumNumber).isEqualTo(testContext.identyumUser.identyumUuid)
-            assertThat(userInfo.createdAt).isBeforeOrEqualTo(ZonedDateTime.now())
-            assertThat(userInfo.connected).isFalse()
-        }
-    }
-
     private fun createUserService(properties: ApplicationProperties): UserService {
         return UserServiceImpl(userRepository, roleRepository, userInfoRepository, mailTokenRepository, mailService,
             passwordEncoder, properties)
@@ -225,7 +149,5 @@ class UserServiceTest : JpaServiceTestBase() {
         lateinit var applicationProperties: ApplicationProperties
         lateinit var email: String
         lateinit var user: User
-        lateinit var identyumUser: IdentyumUserModel
-        lateinit var identyumDocument: IdentyumDocumentModel
     }
 }

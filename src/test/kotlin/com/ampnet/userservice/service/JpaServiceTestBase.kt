@@ -79,6 +79,7 @@ abstract class JpaServiceTestBase : TestBase() {
             country = "HRV"
             dateOfBirth = "2002-07-01"
             identyumNumber = UUID.randomUUID().toString()
+            webSessionUuid = UUID.randomUUID().toString()
             idType = "ID"
             idNumber = "1242342"
             personalId = "324242332"

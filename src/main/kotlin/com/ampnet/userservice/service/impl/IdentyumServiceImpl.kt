@@ -5,8 +5,9 @@ import com.ampnet.userservice.controller.pojo.request.IdentyumPayloadRequest
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.IdentyumException
 import com.ampnet.userservice.exception.InternalException
+import com.ampnet.userservice.persistence.model.UserInfo
+import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.service.IdentyumService
-import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.IdentyumUserModel
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -15,12 +16,14 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import java.security.MessageDigest
+import java.time.ZonedDateTime
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -31,7 +34,7 @@ class IdentyumServiceImpl(
     private val applicationProperties: ApplicationProperties,
     private val restTemplate: RestTemplate,
     private val objectMapper: ObjectMapper,
-    private val userService: UserService
+    private val userInfoRepository: UserInfoRepository
 ) : IdentyumService {
 
     companion object : KLogging()
@@ -55,14 +58,15 @@ class IdentyumServiceImpl(
         }
     }
 
-    override fun storeUser(request: IdentyumPayloadRequest) {
-        try {
-            val decryptedData = decrypt(request.payload, applicationProperties.identyum.key, request.reportUuid)
-            val identyumUser: IdentyumUserModel = objectMapper.readValue(decryptedData)
-            userService.createUserInfo(identyumUser)
-        } catch (ex: IdentyumException) {
-            logger.error("Could not store Identyum user", ex)
-        }
+    @Transactional
+    @Throws(IdentyumException::class)
+    override fun createUserInfo(request: IdentyumPayloadRequest): UserInfo {
+        val decryptedData = decrypt(request.payload, applicationProperties.identyum.key, request.reportUuid)
+        val identyumUser: IdentyumUserModel = objectMapper.readValue(decryptedData)
+
+        val userInfo = createUserInfoFromIdentyumUser(identyumUser)
+        userInfo.webSessionUuid = request.webSessionUuid
+        return userInfoRepository.save(userInfo)
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -80,6 +84,25 @@ class IdentyumServiceImpl(
         } catch (ex: Exception) {
             throw IdentyumException("Could not decode Identyum payload", ex)
         }
+    }
+
+    @Suppress("ThrowsCount")
+    fun createUserInfoFromIdentyumUser(identyumUser: IdentyumUserModel): UserInfo {
+        val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance()
+        val document = identyumUser.document.firstOrNull() ?: throw IdentyumException("Missing document")
+        userInfo.apply {
+            phoneNumber = identyumUser.phones.firstOrNull()?.phoneNumber ?: throw IdentyumException("Missing phone")
+            verifiedEmail = identyumUser.emails.firstOrNull()?.email ?: throw IdentyumException("Missing email")
+            country = document.countryCode
+            dateOfBirth = document.dateOfBirth
+            identyumNumber = identyumUser.identyumUuid
+            idType = document.type
+            idNumber = document.docNumber
+            personalId = document.personalIdentificationNumber.value
+            createdAt = ZonedDateTime.now()
+            connected = false
+        }
+        return userInfo
     }
 
     private fun generateIdentyumRequest(): HttpEntity<MultiValueMap<String, String>> {

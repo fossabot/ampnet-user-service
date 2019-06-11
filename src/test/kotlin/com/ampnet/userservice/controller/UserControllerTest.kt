@@ -5,7 +5,6 @@ import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.controller.pojo.response.UsersListResponse
 import com.ampnet.userservice.enums.PrivilegeType
 import com.ampnet.userservice.enums.UserRoleType
-import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -188,11 +187,6 @@ class UserControllerTest : ControllerTestBase() {
 
     private class TestUser {
         var email = "john@smith.com"
-        var password = "Password157!"
-        var firstName = "John"
-        var lastName = "Smith"
-        var phoneNumber = "0951234567"
-        var authMethod = AuthMethod.EMAIL
     }
 
     private class TestContext {

@@ -1,7 +1,7 @@
 -- Role
 CREATE TABLE role (
   id INT PRIMARY KEY,
-  name VARCHAR NOT NULL,
+  name VARCHAR(32) NOT NULL,
   description VARCHAR NOT NULL
 );
 INSERT INTO role VALUES
@@ -12,6 +12,7 @@ INSERT INTO role VALUES
 -- User
 CREATE TABLE user_info (
     id SERIAL PRIMARY KEY,
+    web_session_uuid VARCHAR NOT NULL,
     verified_email VARCHAR NOT NULL,
     phone_number VARCHAR(32) NOT NULL,
     country VARCHAR NOT NULL,

@@ -87,17 +87,17 @@ class RegistrationController(
                 AuthMethod.EMAIL -> {
                     val userInfo: SignupRequestUserInfo = objectMapper.readValue(jsonString)
                     CreateUserServiceRequest(
-                        request.identyumUuid, userInfo.email, userInfo.password, request.signupMethod)
+                        request.webSessionUuid, userInfo.email, userInfo.password, request.signupMethod)
                 }
                 AuthMethod.GOOGLE -> {
                     val socialInfo: SignupRequestSocialInfo = objectMapper.readValue(jsonString)
                     val email = socialService.getGoogleEmail(socialInfo.token)
-                    CreateUserServiceRequest(request.identyumUuid, email, null, request.signupMethod)
+                    CreateUserServiceRequest(request.webSessionUuid, email, null, request.signupMethod)
                 }
                 AuthMethod.FACEBOOK -> {
                     val socialInfo: SignupRequestSocialInfo = objectMapper.readValue(jsonString)
                     val email = socialService.getFacebookEmail(socialInfo.token)
-                    CreateUserServiceRequest(request.identyumUuid, email, null, request.signupMethod)
+                    CreateUserServiceRequest(request.webSessionUuid, email, null, request.signupMethod)
                 }
             }
         } catch (ex: MissingKotlinParameterException) {

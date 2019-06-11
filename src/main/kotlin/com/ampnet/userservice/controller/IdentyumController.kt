@@ -2,6 +2,7 @@ package com.ampnet.userservice.controller
 
 import com.ampnet.userservice.controller.pojo.request.IdentyumPayloadRequest
 import com.ampnet.userservice.controller.pojo.response.IdentyumTokenResponse
+import com.ampnet.userservice.exception.IdentyumException
 import com.ampnet.userservice.service.IdentyumService
 import mu.KLogging
 import org.springframework.http.ResponseEntity
@@ -25,8 +26,13 @@ class IdentyumController(private val identyumService: IdentyumService) {
     @PostMapping("/identyum")
     fun postUserData(@RequestBody request: IdentyumPayloadRequest): ResponseEntity<Unit> {
         logger.info { "Received Identyum user: $request" }
-        identyumService.storeUser(request)
-        logger.info { "Successfully stored Identyum user" }
-        return ResponseEntity.ok().build()
+        return try {
+            val userInfo = identyumService.createUserInfo(request)
+            logger.info { "Successfully stored Identyum user - webSessionUuid: ${userInfo.webSessionUuid}" }
+            ResponseEntity.ok().build()
+        } catch (ex: IdentyumException) {
+            logger.error("Could not store UserInfo from Identyum request", ex)
+            ResponseEntity.unprocessableEntity().build()
+        }
     }
 }

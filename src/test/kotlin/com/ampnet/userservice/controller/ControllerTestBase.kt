@@ -101,16 +101,17 @@ abstract class ControllerTestBase : TestBase() {
         last: String = "lastname",
         email: String = "email@mail.com",
         phone: String = "+3859",
-        identyumUuid: String = "1234-1234-1234-1234"
+        webSessionUuid: String = "1234-1234-1234-1234"
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
+            this.webSessionUuid = webSessionUuid
             firstName = first
             lastName = last
             verifiedEmail = email
             phoneNumber = phone
             country = "HRV"
             dateOfBirth = "2002-07-01"
-            identyumNumber = identyumUuid
+            identyumNumber = UUID.randomUUID().toString()
             idType = "ID"
             idNumber = "1242342"
             personalId = "324242332"

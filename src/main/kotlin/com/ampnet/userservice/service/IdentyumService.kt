@@ -1,8 +1,9 @@
 package com.ampnet.userservice.service
 
 import com.ampnet.userservice.controller.pojo.request.IdentyumPayloadRequest
+import com.ampnet.userservice.persistence.model.UserInfo
 
 interface IdentyumService {
     fun getToken(): String
-    fun storeUser(request: IdentyumPayloadRequest)
+    fun createUserInfo(request: IdentyumPayloadRequest): UserInfo
 }

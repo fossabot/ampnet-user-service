@@ -61,7 +61,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     fun mustBeAbleToSignUpUser() {
         suppose("User info exists") {
             databaseCleanerService.deleteAllUsers()
-            createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+            createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
         }
         suppose("The user send request to sign up") {
             val requestJson = generateSignupJson()
@@ -186,7 +186,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     fun signupUsingFacebookMethod() {
         suppose("User info exists") {
             databaseCleanerService.deleteAllUsers()
-            createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+            createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
         }
         suppose("Social service is mocked to return Facebook user") {
             testContext.socialEmail = "johnsmith@gmail.com"
@@ -195,7 +195,7 @@ class RegistrationControllerTest : ControllerTestBase() {
         }
 
         verify("The user can sign up with Facebook account") {
-            verifySocialSignUp(AuthMethod.FACEBOOK, testContext.token, testContext.socialEmail, testUser.identyumUuid)
+            verifySocialSignUp(AuthMethod.FACEBOOK, testContext.token, testContext.socialEmail, testUser.webSessionUuid)
         }
     }
 
@@ -203,7 +203,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     fun signupUsingGoogleMethod() {
         suppose("User info exists") {
             databaseCleanerService.deleteAllUsers()
-            createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+            createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
         }
         suppose("Social service is mocked to return Google user") {
             testContext.socialEmail = "johnsmith@gmail.com"
@@ -212,7 +212,7 @@ class RegistrationControllerTest : ControllerTestBase() {
         }
 
         verify("The user can sign up with Google account") {
-            verifySocialSignUp(AuthMethod.GOOGLE, testContext.token, testContext.socialEmail, testUser.identyumUuid)
+            verifySocialSignUp(AuthMethod.GOOGLE, testContext.token, testContext.socialEmail, testUser.webSessionUuid)
         }
     }
 
@@ -377,9 +377,9 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     private fun createUnconfirmedUser() {
         databaseCleanerService.deleteAllUsers()
-        createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+        createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
         val request = CreateUserServiceRequest(
-            testUser.identyumUuid, testUser.email, testUser.password, testUser.authMethod)
+            testUser.webSessionUuid, testUser.email, testUser.password, testUser.authMethod)
         val savedUser = userService.createUser(request)
         testUser.id = savedUser.id
         val user = userService.find(testUser.id) ?: fail("User must not be null")
@@ -389,7 +389,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     private fun generateSignupJson(): String {
         return """
             |{
-            |  "identyum_uuid" : "${testUser.identyumUuid}",
+            |  "web_session_uuid" : "${testUser.webSessionUuid}",
             |  "signup_method" : "${testUser.authMethod}",
             |  "user_info" : {
             |       "email" : "${testUser.email}",
@@ -399,11 +399,11 @@ class RegistrationControllerTest : ControllerTestBase() {
         """.trimMargin()
     }
 
-    private fun verifySocialSignUp(authMethod: AuthMethod, token: String, email: String, identyumUuid: String) {
+    private fun verifySocialSignUp(authMethod: AuthMethod, token: String, email: String, webSessionUuid: String) {
         suppose("User has obtained token on frontend and sends signup request") {
             val request = """
             |{
-            |  "identyum_uuid" : "$identyumUuid",
+            |  "web_session_uuid" : "$webSessionUuid",
             |  "signup_method" : "$authMethod",
             |  "user_info" : {
             |    "token" : "$token"
@@ -433,7 +433,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     }
 
     private fun saveTestUser(): User {
-        val userInfo = createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+        val userInfo = createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
         val user = createUser(testUser.email, testUser.authMethod, testUser.password, userInfo)
         testUser.id = user.id
         return user
@@ -444,7 +444,7 @@ class RegistrationControllerTest : ControllerTestBase() {
         var email = "john@smith.com"
         var password = "abcdefgh"
         var authMethod = AuthMethod.EMAIL
-        var identyumUuid = "1234-1234-1234-1234"
+        var webSessionUuid = "1234-1234-1234-1234"
     }
 
     private class TestContext {

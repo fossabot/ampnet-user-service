@@ -11,7 +11,7 @@ data class Role(
     @Id
     val id: Int,
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     val name: String,
 
     @Column(nullable = false)

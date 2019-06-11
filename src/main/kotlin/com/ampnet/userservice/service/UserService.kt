@@ -2,13 +2,10 @@ package com.ampnet.userservice.service
 
 import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
-import com.ampnet.userservice.service.pojo.IdentyumUserModel
 import java.util.UUID
 
 interface UserService {
-    fun createUserInfo(identyumUser: IdentyumUserModel): UserInfo
     fun createUser(request: CreateUserServiceRequest): User
     fun findAll(): List<User>
     fun delete(id: Int)

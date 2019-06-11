@@ -5,13 +5,11 @@ import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
-import com.ampnet.userservice.exception.IdentyumException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.MailToken
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
@@ -19,7 +17,6 @@ import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.MailService
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
-import com.ampnet.userservice.service.pojo.IdentyumUserModel
 import mu.KLogging
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -40,19 +37,8 @@ class UserServiceImpl(
 
     companion object : KLogging()
 
-    private val userRole: Role by lazy {
-        roleRepository.getOne(UserRoleType.USER.id)
-    }
-
-    private val adminRole: Role by lazy {
-        roleRepository.getOne(UserRoleType.ADMIN.id)
-    }
-
-    @Transactional
-    override fun createUserInfo(identyumUser: IdentyumUserModel): UserInfo {
-        val userInfo = createUserInfoFromIdentyumUser(identyumUser)
-        return userInfoRepository.save(userInfo)
-    }
+    private val userRole: Role by lazy { roleRepository.getOne(UserRoleType.USER.id) }
+    private val adminRole: Role by lazy { roleRepository.getOne(UserRoleType.ADMIN.id) }
 
     @Transactional
     override fun createUser(request: CreateUserServiceRequest): User {
@@ -135,9 +121,9 @@ class UserServiceImpl(
     }
 
     private fun createUserFromRequest(request: CreateUserServiceRequest): User {
-        val userInfo = userInfoRepository.findByIdentyumNumber(request.identyumUuid).orElseThrow {
+        val userInfo = userInfoRepository.findByWebSessionUuid(request.webSessionUuid).orElseThrow {
             throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
-                "Missing UserInfo with identyum number: ${request.identyumUuid}")
+                "Missing UserInfo with Identyum webSessionUuid: ${request.webSessionUuid}")
         }
         val user = User::class.java.getDeclaredConstructor().newInstance().apply {
             this.email = request.email
@@ -146,7 +132,7 @@ class UserServiceImpl(
             this.role = userRole
             this.userInfo = userInfo
             this.userInfo.connected = true
-            this.uuid = getRandomUuid()
+            this.uuid = UUID.randomUUID()
             this.enabled = true
         }
         if (request.authMethod == AuthMethod.EMAIL) {
@@ -156,33 +142,12 @@ class UserServiceImpl(
         return user
     }
 
-    @Suppress("ThrowsCount")
-    private fun createUserInfoFromIdentyumUser(identyumUser: IdentyumUserModel): UserInfo {
-        val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance()
-        val document = identyumUser.document.firstOrNull() ?: throw IdentyumException("Missing document")
-        userInfo.apply {
-            phoneNumber = identyumUser.phones.firstOrNull()?.phoneNumber ?: throw IdentyumException("Missing phone")
-            verifiedEmail = identyumUser.emails.firstOrNull()?.email ?: throw IdentyumException("Missing email")
-            country = document.countryCode
-            dateOfBirth = document.dateOfBirth
-            identyumNumber = identyumUser.identyumUuid
-            idType = document.type
-            idNumber = document.docNumber
-            personalId = document.personalIdentificationNumber.value
-            createdAt = ZonedDateTime.now()
-            connected = false
-        }
-        return userInfo
-    }
-
     private fun createMailToken(user: User): MailToken {
         val mailToken = MailToken::class.java.getConstructor().newInstance().apply {
             this.user = user
-            token = getRandomUuid()
+            token = UUID.randomUUID()
             createdAt = ZonedDateTime.now()
         }
         return mailTokenRepository.save(mailToken)
     }
-
-    private fun getRandomUuid(): UUID = UUID.randomUUID()
 }
