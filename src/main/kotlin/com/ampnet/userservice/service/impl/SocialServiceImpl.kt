@@ -18,7 +18,6 @@ class SocialServiceImpl : SocialService {
     @Throws(SocialException::class)
     override fun getFacebookEmail(token: String): String {
         logger.debug { "Getting Facebook user info" }
-
         try {
             val facebook = FacebookTemplate(token)
             val userProfile = facebook.fetchObject(
@@ -27,7 +26,6 @@ class SocialServiceImpl : SocialService {
                     "id", "email"
             )
             logger.debug { "Received Facebook user info with mail: ${userProfile.email}" }
-
             return userProfile.email
         } catch (ex: NotAuthorizedException) {
             throw SocialException(ErrorCode.REG_SOCIAL, "Not authorized to get data from Facebook", ex)
@@ -38,7 +36,6 @@ class SocialServiceImpl : SocialService {
     @Throws(SocialException::class)
     override fun getGoogleEmail(token: String): String {
         logger.debug { "Getting Google user info" }
-
         try {
             val template = GoogleTemplate(token)
             val userInfo = template.oauth2Operations().userinfo

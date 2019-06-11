@@ -48,12 +48,9 @@ abstract class JpaServiceTestBase : TestBase() {
     protected val mailService = Mockito.mock(MailService::class.java)
 
     protected fun createUser(email: String, firstName: String = "first", lastName: String = "last"): User {
-        return createUser(email, AuthMethod.EMAIL, createUserInfo(firstName, lastName, email))
-    }
-
-    protected fun createUser(email: String, auth: AuthMethod, userInfo: UserInfo): User {
+        val userInfo = createUserInfo(email, firstName, lastName)
         val user = User::class.java.getConstructor().newInstance().apply {
-            authMethod = auth
+            authMethod = AuthMethod.EMAIL
             createdAt = ZonedDateTime.now()
             this.email = email
             enabled = true
@@ -66,20 +63,20 @@ abstract class JpaServiceTestBase : TestBase() {
     }
 
     protected fun createUserInfo(
+        webSessionUuid: String = UUID.randomUUID().toString(),
         first: String = "firstname",
         last: String = "lastname",
-        email: String = "email@mail.com",
-        phone: String = "+3859"
+        email: String = "email@mail.com"
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
             firstName = first
             lastName = last
             verifiedEmail = email
-            phoneNumber = phone
+            phoneNumber = "+3859"
             country = "HRV"
             dateOfBirth = "2002-07-01"
             identyumNumber = UUID.randomUUID().toString()
-            webSessionUuid = UUID.randomUUID().toString()
+            this.webSessionUuid = webSessionUuid
             idType = "ID"
             idNumber = "1242342"
             personalId = "324242332"

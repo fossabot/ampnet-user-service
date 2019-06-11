@@ -22,12 +22,10 @@ class UserControllerTest : ControllerTestBase() {
     private val pathUsers = "/users"
     private val pathMe = "/me"
 
-    private lateinit var testUser: TestUser
     private lateinit var testContext: TestContext
 
     @BeforeEach
     fun initTestData() {
-        testUser = TestUser()
         testContext = TestContext()
     }
 
@@ -36,8 +34,8 @@ class UserControllerTest : ControllerTestBase() {
     fun mustBeAbleToGetOwnProfile() {
         suppose("User exists in database") {
             databaseCleanerService.deleteAllUsers()
-            testUser.email = "test@test.com"
-            createUser(testUser.email)
+            testContext.email = "test@test.com"
+            createUser(testContext.email)
         }
 
         verify("The controller must return user data") {
@@ -46,7 +44,7 @@ class UserControllerTest : ControllerTestBase() {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn()
             val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
-            assertThat(userResponse.email).isEqualTo(testUser.email)
+            assertThat(userResponse.email).isEqualTo(testContext.email)
         }
     }
 
@@ -55,7 +53,7 @@ class UserControllerTest : ControllerTestBase() {
     fun mustBeAbleToGetAListOfUsers() {
         suppose("Some user exists in database") {
             databaseCleanerService.deleteAllUsers()
-            createUser("etst@email.com")
+            createUser("test@email.com")
         }
 
         verify("The controller returns a list of users") {
@@ -111,7 +109,7 @@ class UserControllerTest : ControllerTestBase() {
     fun adminMustBeAbleToGetUserWithId() {
         suppose("User exists in database") {
             databaseCleanerService.deleteAllUsers()
-            testContext.user = createUser(testUser.email)
+            testContext.user = createUser(testContext.email)
         }
 
         verify("User with PRA_PROFILE privilege can get user via id") {
@@ -142,7 +140,7 @@ class UserControllerTest : ControllerTestBase() {
     fun mustNotBeAbleToChangeRoleWithUserRole() {
         suppose("User is in database") {
             databaseCleanerService.deleteAllUsers()
-            testContext.user = createUser(testUser.email)
+            testContext.user = createUser(testContext.email)
         }
 
         verify("Controller will return forbidden because privilege is missing") {
@@ -185,12 +183,9 @@ class UserControllerTest : ControllerTestBase() {
         }
     }
 
-    private class TestUser {
-        var email = "john@smith.com"
-    }
-
     private class TestContext {
         lateinit var user: User
         lateinit var admin: User
+        var email = "john@smith.com"
     }
 }

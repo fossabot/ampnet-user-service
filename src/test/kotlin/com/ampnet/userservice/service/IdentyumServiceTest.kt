@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 import org.springframework.web.client.RestTemplate
 
-@Disabled
 @Import(JsonConfig::class, RestTemplateConfig::class, ApplicationProperties::class)
 class IdentyumServiceTest : JpaServiceTestBase() {
 
@@ -36,6 +35,7 @@ class IdentyumServiceTest : JpaServiceTestBase() {
         testContext = TestContext()
     }
 
+    @Disabled("Problem with identyum examples")
     @Test
     fun mustBeAbleToDecode() {
         val identyumPayloadRequest = loadIdentyumPayloadRequest()

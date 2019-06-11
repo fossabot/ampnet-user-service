@@ -55,5 +55,5 @@ class MailServiceImpl(
     private fun getSenderMail(): String = applicationProperties.mail.sender
 
     private fun getConfirmationLink(token: String): String =
-            "${applicationProperties.mail.confirmationBaseLink}?token=$token"
+        "${applicationProperties.mail.confirmationBaseLink}?token=$token"
 }

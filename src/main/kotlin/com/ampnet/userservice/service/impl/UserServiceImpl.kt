@@ -78,20 +78,18 @@ class UserServiceImpl(
 
     @Transactional
     override fun confirmEmail(token: UUID): User? {
-        val optionalMailToken = mailTokenRepository.findByToken(token)
-        if (!optionalMailToken.isPresent) {
-            return null
-        }
-        val mailToken = optionalMailToken.get()
-        if (mailToken.isExpired()) {
-            throw InvalidRequestException(ErrorCode.REG_EMAIL_EXPIRED_TOKEN,
+        ServiceUtils.wrapOptional(mailTokenRepository.findByToken(token))?.let { mailToken ->
+            if (mailToken.isExpired()) {
+                throw InvalidRequestException(ErrorCode.REG_EMAIL_EXPIRED_TOKEN,
                     "User is trying to confirm mail with expired token: $token")
-        }
-        val user = mailToken.user
-        user.enabled = true
+            }
+            val user = mailToken.user
+            user.enabled = true
 
-        mailTokenRepository.delete(mailToken)
-        return userRepository.save(user)
+            mailTokenRepository.delete(mailToken)
+            return userRepository.save(user)
+        }
+        return null
     }
 
     @Transactional
