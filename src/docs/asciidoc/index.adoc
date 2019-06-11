@@ -32,12 +32,6 @@ include::{snippets}/RegistrationControllerTest/incompleteSignupRequestShouldFail
 
 ==== Signup information complete but invalid
 
-===== Empty first name
-.Request
-include::{snippets}/RegistrationControllerTest/emptyNameSignupRequestShouldFail/http-request.adoc[]
-.Response
-include::{snippets}/RegistrationControllerTest/emptyNameSignupRequestShouldFail/http-response.adoc[]
-
 ===== Invalid email
 .Request
 include::{snippets}/RegistrationControllerTest/invalidEmailSignupRequestShouldFail/http-request.adoc[]
@@ -49,12 +43,6 @@ include::{snippets}/RegistrationControllerTest/invalidEmailSignupRequestShouldFa
 include::{snippets}/RegistrationControllerTest/shortPasswordSignupRequestShouldFail/http-request.adoc[]
 .Response
 include::{snippets}/RegistrationControllerTest/shortPasswordSignupRequestShouldFail/http-response.adoc[]
-
-===== Invalid phone number
-.Request
-include::{snippets}/RegistrationControllerTest/invalidPhoneNumberSignupRequestShouldFail/http-request.adoc[]
-.Response
-include::{snippets}/RegistrationControllerTest/invalidPhoneNumberSignupRequestShouldFail/http-response.adoc[]
 
 ==== Signup failed because user exists
 .Request
