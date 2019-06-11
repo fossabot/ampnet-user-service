@@ -13,11 +13,11 @@ import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.MailService
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
+import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.ZonedDateTime
 import java.util.UUID
 
-@Disabled("Define signup flow")
 @ActiveProfiles("SocialMockConfig")
 class RegistrationControllerTest : ControllerTestBase() {
 
@@ -60,8 +59,11 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     @Test
     fun mustBeAbleToSignUpUser() {
-        suppose("The user send request to sign up") {
+        suppose("User info exists") {
             databaseCleanerService.deleteAllUsers()
+            createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+        }
+        suppose("The user send request to sign up") {
             val requestJson = generateSignupJson()
             testContext.mvcResult = mockMvc.perform(
                     post(pathSignup)
@@ -82,8 +84,6 @@ class RegistrationControllerTest : ControllerTestBase() {
             assert(userInRepo.email == testUser.email)
             assertThat(testUser.id).isEqualTo(userInRepo.id)
             assert(passwordEncoder.matches(testUser.password, userInRepo.password))
-//            assert(userInRepo.firstName == testUser.firstName)
-//            assert(userInRepo.lastName == testUser.lastName)
             assert(userInRepo.authMethod == testUser.authMethod)
             assert(userInRepo.role.id == UserRoleType.USER.id)
             assert(userInRepo.createdAt.isBefore(ZonedDateTime.now()))
@@ -124,34 +124,10 @@ class RegistrationControllerTest : ControllerTestBase() {
     }
 
     @Test
-    fun emptyNameSignupRequestShouldFail() {
-        verify("The user cannot send request with empty name") {
-            testUser.email = "test@email.com"
-            testUser.password = "passsssword"
-            testUser.firstName = ""
-            testUser.lastName = "NoFirstName"
-            testUser.phoneNumber = "0981234567"
-            val invalidJsonRequest = generateSignupJson()
-
-            val result = mockMvc.perform(
-                    post(pathSignup)
-                            .content(invalidJsonRequest)
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                    .andReturn()
-
-            verifyResponseErrorCode(result, ErrorCode.REG_INVALID)
-        }
-    }
-
-    @Test
     fun invalidEmailSignupRequestShouldFail() {
         verify("The user cannot send request with invalid email") {
             testUser.email = "invalid-mail.com"
             testUser.password = "passssword"
-            testUser.firstName = "Name"
-            testUser.lastName = "NoFirstName"
-            testUser.phoneNumber = "0981234567"
             val invalidJsonRequest = generateSignupJson()
 
             val result = mockMvc.perform(
@@ -170,30 +146,6 @@ class RegistrationControllerTest : ControllerTestBase() {
         verify("The user cannot send request with too short passowrd") {
             testUser.email = "invalid@mail.com"
             testUser.password = "short"
-            testUser.firstName = "Name"
-            testUser.lastName = "NoFirstName"
-            testUser.phoneNumber = "0981234567"
-            val invalidJsonRequest = generateSignupJson()
-
-            val result = mockMvc.perform(
-                    post(pathSignup)
-                            .content(invalidJsonRequest)
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                    .andReturn()
-
-            verifyResponseErrorCode(result, ErrorCode.REG_INVALID)
-        }
-    }
-
-    @Test
-    fun invalidPhoneNumberSignupRequestShouldFail() {
-        verify("The user cannot send request with invalid phone number") {
-            testUser.email = "invalid@mail.com"
-            testUser.password = "passssword"
-            testUser.firstName = "Name"
-            testUser.lastName = "NoFirstName"
-            testUser.phoneNumber = "012abc345wrong"
             val invalidJsonRequest = generateSignupJson()
 
             val result = mockMvc.perform(
@@ -209,12 +161,12 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     @Test
     fun signupShouldFailIfUserAlreadyExists() {
-        suppose("User with email ${testUser.email} exists in database") {
+        suppose("User exists in database") {
             databaseCleanerService.deleteAllUsers()
             saveTestUser()
         }
 
-        verify("The user cannnot sign up with already existing email") {
+        verify("The user cannot sign up with already existing email") {
             val requestJson = generateSignupJson()
             val result = mockMvc.perform(
                     post(pathSignup)
@@ -232,30 +184,35 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     @Test
     fun signupUsingFacebookMethod() {
-        suppose("Social service is mocked to return Facebook user") {
+        suppose("User info exists") {
             databaseCleanerService.deleteAllUsers()
+            createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+        }
+        suppose("Social service is mocked to return Facebook user") {
             testContext.socialEmail = "johnsmith@gmail.com"
             Mockito.`when`(socialService.getFacebookEmail(testContext.token))
                     .thenReturn(testContext.socialEmail)
         }
 
         verify("The user can sign up with Facebook account") {
-            verifySocialSignUp(AuthMethod.FACEBOOK, testContext.token, testContext.socialEmail)
+            verifySocialSignUp(AuthMethod.FACEBOOK, testContext.token, testContext.socialEmail, testUser.identyumUuid)
         }
     }
 
     @Test
     fun signupUsingGoogleMethod() {
-        suppose("Social service is mocked to return Google user") {
+        suppose("User info exists") {
             databaseCleanerService.deleteAllUsers()
+            createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+        }
+        suppose("Social service is mocked to return Google user") {
             testContext.socialEmail = "johnsmith@gmail.com"
-//            createUser(testContext.socialEmail, AuthMethod.GOOGLE)
             Mockito.`when`(socialService.getGoogleEmail(testContext.token))
                     .thenReturn(testContext.socialEmail)
         }
 
         verify("The user can sign up with Google account") {
-            verifySocialSignUp(AuthMethod.GOOGLE, testContext.token, testContext.socialEmail)
+            verifySocialSignUp(AuthMethod.GOOGLE, testContext.token, testContext.socialEmail, testUser.identyumUuid)
         }
     }
 
@@ -420,7 +377,11 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     private fun createUnconfirmedUser() {
         databaseCleanerService.deleteAllUsers()
-        saveTestUser()
+        createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
+        val request = CreateUserServiceRequest(
+            testUser.identyumUuid, testUser.email, testUser.password, testUser.authMethod)
+        val savedUser = userService.createUser(request)
+        testUser.id = savedUser.id
         val user = userService.find(testUser.id) ?: fail("User must not be null")
         assertThat(user.enabled).isFalse()
     }
@@ -428,22 +389,21 @@ class RegistrationControllerTest : ControllerTestBase() {
     private fun generateSignupJson(): String {
         return """
             |{
+            |  "identyum_uuid" : "${testUser.identyumUuid}",
             |  "signup_method" : "${testUser.authMethod}",
             |  "user_info" : {
             |       "email" : "${testUser.email}",
-            |       "password" : "${testUser.password}",
-            |       "first_name" : "${testUser.firstName}",
-            |       "last_name" : "${testUser.lastName}",
-            |       "phone_number" : "${testUser.phoneNumber}"
+            |       "password" : "${testUser.password}"
             |   }
             |}
         """.trimMargin()
     }
 
-    private fun verifySocialSignUp(authMethod: AuthMethod, token: String, email: String) {
+    private fun verifySocialSignUp(authMethod: AuthMethod, token: String, email: String, identyumUuid: String) {
         suppose("User has obtained token on frontend and sends signup request") {
             val request = """
             |{
+            |  "identyum_uuid" : "$identyumUuid",
             |  "signup_method" : "$authMethod",
             |  "user_info" : {
             |    "token" : "$token"
@@ -455,6 +415,7 @@ class RegistrationControllerTest : ControllerTestBase() {
                     post(pathSignup)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(request))
+                    .andExpect(status().isOk)
                     .andReturn()
         }
 
@@ -466,15 +427,13 @@ class RegistrationControllerTest : ControllerTestBase() {
         verify("The user is stored in database") {
             val userInRepo = userService.find(email) ?: fail("User must not be null")
             assert(userInRepo.email == email)
-//            assert(userInRepo.firstName == expectedSocialUser.firstName)
-//            assert(userInRepo.lastName == expectedSocialUser.lastName)
             assert(userInRepo.role.id == UserRoleType.USER.id)
             assertThat(userInRepo.enabled).isTrue()
         }
     }
 
     private fun saveTestUser(): User {
-        val userInfo = createUserInfo(testUser.firstName, testUser.lastName, testUser.email, testUser.phoneNumber)
+        val userInfo = createUserInfo(email = testUser.email, identyumUuid = testUser.identyumUuid)
         val user = createUser(testUser.email, testUser.authMethod, testUser.password, userInfo)
         testUser.id = user.id
         return user
@@ -484,10 +443,8 @@ class RegistrationControllerTest : ControllerTestBase() {
         var id = -1
         var email = "john@smith.com"
         var password = "abcdefgh"
-        var firstName = "John"
-        var lastName = "Smith"
-        var phoneNumber = "0951234567"
         var authMethod = AuthMethod.EMAIL
+        var identyumUuid = "1234-1234-1234-1234"
     }
 
     private class TestContext {

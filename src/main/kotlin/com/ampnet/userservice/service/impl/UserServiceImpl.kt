@@ -6,6 +6,7 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.IdentyumException
+import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.MailToken
 import com.ampnet.userservice.persistence.model.Role
@@ -17,6 +18,7 @@ import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.MailService
 import com.ampnet.userservice.service.UserService
+import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import com.ampnet.userservice.service.pojo.IdentyumUserModel
 import mu.KLogging
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -53,12 +55,13 @@ class UserServiceImpl(
     }
 
     @Transactional
-    override fun createUser(identyumUuid: String, email: String, password: String?, authMethod: AuthMethod): User {
-        val userInfo = userInfoRepository.findByIdentyumNumber(identyumUuid).orElseThrow {
-            throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
-                    "Missing UserInfo with identyum number: $identyumUuid")
+    override fun createUser(request: CreateUserServiceRequest): User {
+        if (userRepository.findByEmail(request.email).isPresent) {
+            throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS,
+                "Trying to create user with email that already exists: ${request.email}")
         }
-        val user = createUserFromData(userInfo, email, authMethod, password)
+
+        val user = createUserFromRequest(request)
         userRepository.save(user)
         if (user.authMethod == AuthMethod.EMAIL && user.enabled.not()) {
             val mailToken = createMailToken(user)
@@ -131,10 +134,14 @@ class UserServiceImpl(
         return userRepository.save(user)
     }
 
-    private fun createUserFromData(userInfo: UserInfo, email: String, authMethod: AuthMethod, password: String?): User {
+    private fun createUserFromRequest(request: CreateUserServiceRequest): User {
+        val userInfo = userInfoRepository.findByIdentyumNumber(request.identyumUuid).orElseThrow {
+            throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
+                "Missing UserInfo with identyum number: ${request.identyumUuid}")
+        }
         val user = User::class.java.getDeclaredConstructor().newInstance().apply {
-            this.email = email
-            this.authMethod = authMethod
+            this.email = request.email
+            this.authMethod = request.authMethod
             this.createdAt = ZonedDateTime.now()
             this.role = userRole
             this.userInfo = userInfo
@@ -142,9 +149,9 @@ class UserServiceImpl(
             this.uuid = getRandomUuid()
             this.enabled = true
         }
-        if (authMethod == AuthMethod.EMAIL) {
+        if (request.authMethod == AuthMethod.EMAIL) {
             user.enabled = applicationProperties.mail.enabled.not()
-            user.password = passwordEncoder.encode(password.orEmpty())
+            user.password = passwordEncoder.encode(request.password.orEmpty())
         }
         return user
     }

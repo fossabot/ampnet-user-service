@@ -12,6 +12,13 @@ class GlobalExceptionHandler {
     companion object : KLogging()
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ResourceAlreadyExistsException::class)
+    fun handleResourceAlreadyExists(exception: ResourceAlreadyExistsException): ErrorResponse {
+        logger.warn("ResourceAlreadyExistsException", exception)
+        return generateErrorResponse(exception.errorCode, exception.message)
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleResourceDoesNotExists(exception: ResourceNotFoundException): ErrorResponse {
         logger.error("ResourceNotFoundException", exception)

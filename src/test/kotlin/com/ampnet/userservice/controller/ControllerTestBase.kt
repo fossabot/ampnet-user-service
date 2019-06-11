@@ -100,7 +100,8 @@ abstract class ControllerTestBase : TestBase() {
         first: String = "firstname",
         last: String = "lastname",
         email: String = "email@mail.com",
-        phone: String = "+3859"
+        phone: String = "+3859",
+        identyumUuid: String = "1234-1234-1234-1234"
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
             firstName = first
@@ -109,7 +110,7 @@ abstract class ControllerTestBase : TestBase() {
             phoneNumber = phone
             country = "HRV"
             dateOfBirth = "2002-07-01"
-            identyumNumber = "1234-1234-1234-1234"
+            identyumNumber = identyumUuid
             idType = "ID"
             idNumber = "1242342"
             personalId = "324242332"

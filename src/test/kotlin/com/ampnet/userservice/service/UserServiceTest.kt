@@ -8,6 +8,7 @@ import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.impl.UserServiceImpl
+import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import com.ampnet.userservice.service.pojo.IdentyumDocumentModel
 import com.ampnet.userservice.service.pojo.IdentyumUserModel
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -48,8 +49,9 @@ class UserServiceTest : JpaServiceTestBase() {
         suppose("User created new account") {
             val service = createUserService(testContext.applicationProperties)
             val userInfo = createUserInfo()
-            testContext.user = service.createUser(
+            val request = CreateUserServiceRequest(
                 userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
+            testContext.user = service.createUser(request)
         }
 
         verify("Created user account is connected and enabled") {
@@ -76,8 +78,9 @@ class UserServiceTest : JpaServiceTestBase() {
         suppose("User created new account") {
             val service = createUserService(testContext.applicationProperties)
             val userInfo = createUserInfo()
-            testContext.user = service.createUser(
-                    userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
+            val request = CreateUserServiceRequest(
+                userInfo.identyumNumber, testContext.email, "password", AuthMethod.EMAIL)
+            testContext.user = service.createUser(request)
         }
 
         verify("Created user account is connected and disabled") {
