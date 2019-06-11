@@ -10,6 +10,12 @@ Collection of endpoints for registering users
 
 === Social method - Facebook and Google
 
+==== Successful user signup (FACEBOOK method)
+.Request
+include::{snippets}/RegistrationControllerTest/signupUsingFacebookMethod/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/signupUsingFacebookMethod/http-response.adoc[]
+
 ==== Successful user signup (GOOGLE method)
 .Request
 include::{snippets}/RegistrationControllerTest/signupUsingGoogleMethod/http-request.adoc[]
@@ -101,3 +107,93 @@ include::{snippets}/RegistrationControllerTest/mustReturnFalseForUnusedEmail/htt
 include::{snippets}/IdentyumControllerTest/mustBeAbleToGetIdentyumToken/http-request.adoc[]
 .Response
 include::{snippets}/IdentyumControllerTest/mustBeAbleToGetIdentyumToken/http-response.adoc[]
+
+== Authentication API
+
+=== Successful user signin (EMAIL method)
+.Request
+include::{snippets}/AuthenticationControllerTest/signInRegular/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/signInRegular/http-response.adoc[]
+
+=== Successful user signin (GOOGLE method)
+
+Token in this case is obtained from Google on frontend, and then passed as request parameter.
+
+.Request
+include::{snippets}/AuthenticationControllerTest/signInGoogle/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/signInGoogle/http-response.adoc[]
+
+=== Successful user signin (FACEBOOK method)
+
+Token in this case is obtained from Facebook on frontend, and then passed as request parameter.
+
+.Request
+include::{snippets}/AuthenticationControllerTest/signInFacebook/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/signInFacebook/http-response.adoc[]
+
+=== Invalid credentials
+.Request
+include::{snippets}/AuthenticationControllerTest/signInWithInvalidCredentialsShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/signInWithInvalidCredentialsShouldFail/http-response.adoc[]
+
+=== Invalid login method
+
+For example, user was registered using regular method (filling out email, password...) but he is trying
+to login using Google oauth.
+
+.Request
+include::{snippets}/AuthenticationControllerTest/signInWithInvalidLoginMethodShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/signInWithInvalidLoginMethodShouldFail/http-response.adoc[]
+
+=== Non-existing user login
+.Request
+include::{snippets}/AuthenticationControllerTest/signInWithNonExistingUserShouldFail/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/signInWithNonExistingUserShouldFail/http-response.adoc[]
+
+== User API
+Collection of endpoints for managing users
+
+=== Get own profile
+
+.Request
+include::{snippets}/UserControllerTest/mustBeAbleToGetOwnProfile/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustBeAbleToGetOwnProfile/http-response.adoc[]
+
+=== Fetch users
+
+==== Successful fetch list of users (admin)
+.Request
+include::{snippets}/UserControllerTest/mustBeAbleToGetAListOfUsers/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustBeAbleToGetAListOfUsers/http-response.adoc[]
+
+==== Failed to fetch list of users
+Missing privilege: `PRA_PROFILE`
+
+.Request
+include::{snippets}/UserControllerTest/mustNotBeAbleToGetAListOfUsersWithoutAdminPermission/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustNotBeAbleToGetAListOfUsersWithoutAdminPermission/http-response.adoc[]
+
+=== Change user role
+
+==== Successfully change
+.Request
+include::{snippets}/UserControllerTest/mustBeAbleToChangeRoleWithPrivilege/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustBeAbleToChangeRoleWithPrivilege/http-response.adoc[]
+
+==== Missing privilege to change role
+Missing privilege: `PWA_PROFILE`
+
+.Request
+include::{snippets}/UserControllerTest/mustNotBeAbleToChangeRoleWithUserRole/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustNotBeAbleToChangeRoleWithUserRole/http-response.adoc[]
