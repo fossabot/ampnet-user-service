@@ -57,10 +57,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.subethamail:subethasmtp:3.1.7")
-
-    // TODO: remove, only for java testing
-    testImplementation("com.google.code.gson:gson:2.8.5")
-    testImplementation("commons-io:commons-io:2.6")
 }
 
 tasks.withType<KotlinCompile> {

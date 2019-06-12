@@ -35,17 +35,16 @@ class IdentyumServiceTest : JpaServiceTestBase() {
         testContext = TestContext()
     }
 
-    @Disabled("Problem with identyum examples")
     @Test
     fun mustBeAbleToDecode() {
         val identyumPayloadRequest = loadIdentyumPayloadRequest()
         assertThat(identyumPayloadRequest.reportUuid).isEqualTo("8c99227d-5108-4b1d-bcd2-449826032f99")
 
-        val decodedIdentyumUser = loadDecodedIdentyumPayload()
-        assertThat(decodedIdentyumUser.identyumUuid).isEqualTo("ae1ee02d-8a2d-4c50-a6ca-8f0454e19f6d")
+        val identyumUser = loadDecodedIdentyumPayload()
+        assertThat(identyumUser.identyumUuid).isEqualTo("ae1ee02d-8a2d-4c50-a6ca-8f0454e19f6d")
 
         val decryptedIdentyumUser = decryptPayload(identyumPayloadRequest)
-        assertThat(decryptedIdentyumUser).isEqualTo(decodedIdentyumUser)
+        assertThat(decryptedIdentyumUser).isEqualTo(identyumUser)
     }
 
     @Test
