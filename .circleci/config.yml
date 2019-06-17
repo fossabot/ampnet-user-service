@@ -75,7 +75,6 @@ jobs:
 
 workflows:
   version: 2.1
-
   testAndDeploy:
     jobs:
       - test
