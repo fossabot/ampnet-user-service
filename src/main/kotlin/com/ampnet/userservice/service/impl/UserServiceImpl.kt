@@ -62,8 +62,8 @@ class UserServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun find(username: String): User? {
-        return ServiceUtils.wrapOptional(userRepository.findByEmail(username))
+    override fun find(email: String): User? {
+        return ServiceUtils.wrapOptional(userRepository.findByEmail(email))
     }
 
     @Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package com.ampnet.userservice.controller
 
 import com.ampnet.userservice.config.auth.TokenProvider
+import com.ampnet.userservice.config.auth.UserPrincipal
 import com.ampnet.userservice.controller.pojo.request.TokenRequest
 import com.ampnet.userservice.controller.pojo.request.TokenRequestSocialInfo
 import com.ampnet.userservice.controller.pojo.request.TokenRequestUserInfo
@@ -9,26 +10,26 @@ import com.ampnet.userservice.exception.InvalidLoginMethodException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import mu.KLogging
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class AuthenticationController(
-    val authenticationManager: AuthenticationManager,
-    val jwtTokenUtil: TokenProvider,
+    val jwtTokenProvider: TokenProvider,
     val userService: UserService,
     val socialService: SocialService,
-    val objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper,
+    val passwordEncoder: PasswordEncoder
 ) {
 
     companion object : KLogging()
@@ -36,39 +37,48 @@ class AuthenticationController(
     @PostMapping("token")
     fun generateToken(@RequestBody tokenRequest: TokenRequest): ResponseEntity<AuthTokenResponse> {
         logger.debug { "Received request for token with: ${tokenRequest.loginMethod}" }
-        val usernamePasswordAuthenticationToken = when (tokenRequest.loginMethod) {
+        val user: User = when (tokenRequest.loginMethod) {
             AuthMethod.EMAIL -> {
                 val userInfo: TokenRequestUserInfo = objectMapper.convertValue(tokenRequest.credentials)
-                validateLoginParamsOrThrowException(userInfo.email, AuthMethod.EMAIL)
-                UsernamePasswordAuthenticationToken(userInfo.email, userInfo.password)
+                val user = getUserByEmail(userInfo.email)
+                validateEmailLogin(user, userInfo.password)
+                user
             }
             AuthMethod.FACEBOOK -> {
                 val userInfo: TokenRequestSocialInfo = objectMapper.convertValue(tokenRequest.credentials)
                 val email = socialService.getFacebookEmail(userInfo.token)
-                validateLoginParamsOrThrowException(email, AuthMethod.FACEBOOK)
-                UsernamePasswordAuthenticationToken(email, null)
+                val user = getUserByEmail(email)
+                validateSocialLogin(user, AuthMethod.FACEBOOK)
+                user
             }
             AuthMethod.GOOGLE -> {
                 val userInfo: TokenRequestSocialInfo = objectMapper.convertValue(tokenRequest.credentials)
                 val email = socialService.getGoogleEmail(userInfo.token)
-                validateLoginParamsOrThrowException(email, AuthMethod.GOOGLE)
-                UsernamePasswordAuthenticationToken(email, null)
+                val user = getUserByEmail(email)
+                validateSocialLogin(user, AuthMethod.GOOGLE)
+                user
             }
         }
-        val authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken)
-        SecurityContextHolder.getContext().authentication = authentication
-        val token = jwtTokenUtil.generateToken(authentication)
 
-        logger.debug { "User successfully authenticated." }
+        val token = jwtTokenProvider.generateToken(UserPrincipal(user))
+        logger.debug { "User: ${user.uuid} successfully authenticated." }
         return ResponseEntity.ok(AuthTokenResponse(token))
     }
 
-    private fun validateLoginParamsOrThrowException(email: String, loginMethod: AuthMethod) {
-        val storedUser = userService.find(email)
-                ?: throw ResourceNotFoundException(ErrorCode.USER_MISSING, "User with email: $email does not exists")
-        val authMethod = storedUser.authMethod
-        if (authMethod != loginMethod) {
-            throw InvalidLoginMethodException("Invalid method. Try to login using ${authMethod.name}")
+    private fun validateEmailLogin(user: User, providedPassword: String) {
+        val storedPasswordHash = user.password
+        if (!passwordEncoder.matches(providedPassword, storedPasswordHash)) {
+            logger.debug { "User passwords do not match" }
+            throw BadCredentialsException("Wrong password!")
         }
     }
+
+    private fun validateSocialLogin(user: User, authMethod: AuthMethod) {
+        if (user.authMethod != authMethod) {
+            throw InvalidLoginMethodException("Invalid login method. User: ${user.uuid} try to login with: $authMethod")
+        }
+    }
+
+    private fun getUserByEmail(email: String): User = userService.find(email)
+            ?: throw ResourceNotFoundException(ErrorCode.USER_MISSING, "User with email: $email does not exists")
 }

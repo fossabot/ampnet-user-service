@@ -49,7 +49,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidLoginMethodException::class)
     fun handleInvalidLoginMethod(exception: InvalidLoginMethodException): ErrorResponse {
-        logger.error("InvalidRequestException", exception)
+        logger.warn("InvalidRequestException", exception)
         return generateErrorResponse(ErrorCode.AUTH_INVALID_LOGIN_METHOD, exception.message)
     }
 

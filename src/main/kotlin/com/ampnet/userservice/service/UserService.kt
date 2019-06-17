@@ -9,7 +9,7 @@ interface UserService {
     fun createUser(request: CreateUserServiceRequest): User
     fun findAll(): List<User>
     fun delete(id: Int)
-    fun find(username: String): User?
+    fun find(email: String): User?
     fun find(id: Int): User?
     fun confirmEmail(token: UUID): User?
     fun resendConfirmationMail(user: User)

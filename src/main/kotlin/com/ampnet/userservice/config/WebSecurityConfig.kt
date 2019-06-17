@@ -1,8 +1,8 @@
 package com.ampnet.userservice.config
 
-import com.ampnet.userservice.config.auth.CustomAuthenticationProvider
 import com.ampnet.userservice.config.auth.JwtAuthenticationEntryPoint
 import com.ampnet.userservice.config.auth.JwtAuthenticationFilter
+import com.ampnet.userservice.config.auth.JwtAuthenticationProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -37,7 +37,7 @@ class WebSecurityConfig(
     @Autowired
     fun globalUserDetails(
         authBuilder: AuthenticationManagerBuilder,
-        authenticationProvider: CustomAuthenticationProvider
+        authenticationProvider: JwtAuthenticationProvider
     ) {
         authBuilder.authenticationProvider(authenticationProvider)
     }

@@ -232,7 +232,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     }
 
     private fun verifyTokenForUserData(token: String) {
-        val tokenPrincipal = tokenProvider.getAuthentication(token).principal as UserPrincipal
+        val tokenPrincipal = tokenProvider.parseToken(token)
         val storedUserPrincipal = UserPrincipal(user)
         assertThat(tokenPrincipal).isEqualTo(storedUserPrincipal)
     }
