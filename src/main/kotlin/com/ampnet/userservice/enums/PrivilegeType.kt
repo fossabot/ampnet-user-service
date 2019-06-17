@@ -28,14 +28,3 @@ enum class PrivilegeType {
     PRO_ORG_INVITE,
     PWO_ORG_INVITE
 }
-
-enum class OrganizationPrivilegeType {
-    // Administration
-    PR_USERS,
-    PW_USERS,
-
-    // Organization
-    PW_ORG,
-
-    PW_PROJECT
-}

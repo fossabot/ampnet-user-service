@@ -77,34 +77,6 @@ class UserControllerTest : ControllerTestBase() {
     }
 
     @Test
-    @WithMockCrowdfoundUser(completeProfile = false, email = "test@test.com")
-    fun mustEnableFetchingOwnProfileForIncompleteUserProfile() {
-        suppose("User with incomplete profile exists in database") {
-            databaseCleanerService.deleteAllUsers()
-            createUser("test@test.com")
-        }
-
-        verify("The system returns user profile") {
-            val result = mockMvc.perform(get(pathMe))
-                    .andExpect(status().isOk)
-                    .andReturn()
-
-            val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
-            assertThat(userResponse.email).isEqualTo("test@test.com")
-            assertThat(userResponse.id).isNotNull()
-        }
-    }
-
-    @Test
-    @WithMockCrowdfoundUser(completeProfile = false, role = UserRoleType.ADMIN)
-    fun mustThrowErrorForIncompleteUserProfile() {
-        verify("User with incomplete profile with get an error") {
-            mockMvc.perform(get(pathUsers))
-                    .andExpect(status().isConflict)
-        }
-    }
-
-    @Test
     @WithMockCrowdfoundUser(email = "john@smith.com", privileges = [PrivilegeType.PRA_PROFILE])
     fun adminMustBeAbleToGetUserWithId() {
         suppose("User exists in database") {
