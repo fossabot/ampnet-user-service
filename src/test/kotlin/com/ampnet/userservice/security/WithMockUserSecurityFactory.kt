@@ -20,7 +20,6 @@ class WithMockUserSecurityFactory : WithSecurityContextFactory<WithMockCrowdfoun
             annotation.email,
             fullName,
             authorities.asSequence().map { it.authority }.toSet(),
-            annotation.completeProfile,
             annotation.enabled
         )
 

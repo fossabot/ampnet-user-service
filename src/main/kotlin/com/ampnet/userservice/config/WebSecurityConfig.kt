@@ -3,7 +3,6 @@ package com.ampnet.userservice.config
 import com.ampnet.userservice.config.auth.CustomAuthenticationProvider
 import com.ampnet.userservice.config.auth.JwtAuthenticationEntryPoint
 import com.ampnet.userservice.config.auth.JwtAuthenticationFilter
-import com.ampnet.userservice.config.auth.ProfileFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,8 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class WebSecurityConfig(
     val unauthorizedHandler: JwtAuthenticationEntryPoint,
-    val authenticationTokenFilter: JwtAuthenticationFilter,
-    val profileFilter: ProfileFilter
+    val authenticationTokenFilter: JwtAuthenticationFilter
 ) : WebSecurityConfigurerAdapter() {
 
     @Override
@@ -84,6 +82,5 @@ class WebSecurityConfig(
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http
                 .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
-                .addFilterAfter(profileFilter, JwtAuthenticationFilter::class.java)
     }
 }
