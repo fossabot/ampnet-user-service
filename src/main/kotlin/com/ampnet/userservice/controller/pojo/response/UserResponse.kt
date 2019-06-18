@@ -7,15 +7,17 @@ data class UserResponse(
     val email: String,
     val firstName: String?,
     val lastName: String?,
-    val role: String
+    val role: String,
+    val enabled: Boolean
 ) {
 
     constructor(user: User) : this(
-            user.id,
-            user.email,
-            user.userInfo.firstName,
-            user.userInfo.lastName,
-            user.role.name
+        user.id,
+        user.email,
+        user.userInfo.firstName,
+        user.userInfo.lastName,
+        user.role.name,
+        user.enabled
     )
 }
 

@@ -66,21 +66,22 @@ class WebSecurityConfig(
 
     override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/actuator/**").permitAll()
-                .antMatchers("/docs/index.html").permitAll()
-                .antMatchers("/token/**", "/signup").permitAll()
-                .antMatchers("/countries/**").permitAll()
-                .antMatchers("/mail-confirmation").permitAll()
-                .antMatchers("/mail-check").permitAll()
-                .antMatchers("/issuer/**").permitAll()
-                .antMatchers("/identyum/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/tx_broadcast").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .authorizeRequests()
+            .antMatchers("/actuator/**").permitAll()
+            .antMatchers("/docs/index.html").permitAll()
+            .antMatchers("/token/**", "/signup").permitAll()
+            .antMatchers("/mail-confirmation").permitAll()
+            .antMatchers("/mail-check").permitAll()
+            .antMatchers("/issuer/**").permitAll()
+            .antMatchers("/identyum/**").permitAll()
+            .antMatchers(HttpMethod.POST, "/tx_broadcast").permitAll()
+            // TODO: REMOVE AFTER TESTING
+            .antMatchers("/test/**").permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http
-                .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
     }
 }
