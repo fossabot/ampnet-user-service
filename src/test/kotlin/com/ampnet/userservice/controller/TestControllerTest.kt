@@ -2,7 +2,6 @@ package com.ampnet.userservice.controller
 
 import com.ampnet.userservice.controller.pojo.request.TestUserSignupRequest
 import com.ampnet.userservice.controller.pojo.response.UserResponse
-import com.ampnet.userservice.persistence.model.User
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
