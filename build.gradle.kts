@@ -77,7 +77,7 @@ jib {
     val identyumPassword: String = System.getenv("IDENTYUM_PASSWORD") ?: "IDENTYUM_PASSWORD"
 
     to {
-        image = "ampnet/user-service:$version"
+        image = "ampnet/crowdfunding-user-service:$version"
         auth {
             username = dockerUsername
             password = dockerPassword
