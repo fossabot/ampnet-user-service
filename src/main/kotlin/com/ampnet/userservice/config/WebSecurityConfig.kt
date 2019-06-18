@@ -75,7 +75,6 @@ class WebSecurityConfig(
             .antMatchers("/issuer/**").permitAll()
             .antMatchers("/identyum/**").permitAll()
             .antMatchers(HttpMethod.POST, "/tx_broadcast").permitAll()
-            // TODO: REMOVE AFTER TESTING
             .antMatchers("/test/**").permitAll()
             .anyRequest().authenticated()
             .and()

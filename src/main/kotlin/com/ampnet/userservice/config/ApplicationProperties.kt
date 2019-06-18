@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration
 class ApplicationProperties {
     var jwt: JwtProperties = JwtProperties()
     val mail: MailProperties = MailProperties()
-    val fileStorage: FileStorageProperties = FileStorageProperties()
     val identyum: IdentyumProperties = IdentyumProperties()
+    val testUser: TestUserProperties = TestUserProperties()
 }
 
 @Suppress("MagicNumber")
@@ -21,14 +21,7 @@ class JwtProperties {
 class MailProperties {
     lateinit var sender: String
     lateinit var confirmationBaseLink: String
-    lateinit var organizationInvitationsLink: String
     var enabled: Boolean = false
-}
-
-class FileStorageProperties {
-    lateinit var url: String
-    lateinit var bucket: String
-    lateinit var folder: String
 }
 
 class IdentyumProperties {
@@ -36,4 +29,8 @@ class IdentyumProperties {
     lateinit var username: String
     lateinit var password: String
     lateinit var key: String
+}
+
+class TestUserProperties {
+    var enabled: Boolean = false
 }

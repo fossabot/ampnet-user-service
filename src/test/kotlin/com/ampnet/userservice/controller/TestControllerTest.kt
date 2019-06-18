@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-// TODO: REMOVE AFTER TESTING
 class TestControllerTest : ControllerTestBase() {
 
     private lateinit var testContext: TestContext

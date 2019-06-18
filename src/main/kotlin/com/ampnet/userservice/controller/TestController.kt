@@ -1,5 +1,6 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.controller.pojo.request.TestUserSignupRequest
 import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.enums.AuthMethod
@@ -7,6 +8,7 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -14,12 +16,18 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.ZonedDateTime
 import java.util.UUID
 
-// TODO: REMOVE AFTER TESTING
 @RestController
-class TestController(private val userService: UserService, private val userInfoRepository: UserInfoRepository) {
+class TestController(
+    private val userService: UserService,
+    private val userInfoRepository: UserInfoRepository,
+    private val applicationProperties: ApplicationProperties
+) {
 
     @PostMapping("/test/signup")
     fun createUser(@RequestBody request: TestUserSignupRequest): ResponseEntity<UserResponse> {
+        if (applicationProperties.testUser.enabled.not()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
         val webSessionUuid = UUID.randomUUID().toString()
         val createUserInfo = createTestUserInfo(webSessionUuid)
         val createUserRequest = CreateUserServiceRequest(
