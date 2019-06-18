@@ -75,6 +75,7 @@ jib {
     val dockerPassword: String = System.getenv("DOCKER_PASSWORD") ?: "DOCKER_PASSWORD"
     val identyumUsername: String = System.getenv("IDENTYUM_USERNAME") ?: "IDENTYUM_USERNAME"
     val identyumPassword: String = System.getenv("IDENTYUM_PASSWORD") ?: "IDENTYUM_PASSWORD"
+    val identyumKey: String = System.getenv("IDENTYUM_KEY") ?: "IDENTYUM_KEY"
 
     to {
         image = "ampnet/crowdfunding-user-service:$version"
@@ -86,7 +87,11 @@ jib {
     }
     container {
         useCurrentTimestamp = true
-        environment = mapOf("IDENTYUM_USERNAME" to identyumUsername, "IDENTYUM_PASSWORD" to identyumPassword)
+        environment = mapOf(
+            "IDENTYUM_USERNAME" to identyumUsername,
+            "IDENTYUM_PASSWORD" to identyumPassword,
+            "IDENTYUM_KEY" to identyumKey
+        )
     }
 }
 
