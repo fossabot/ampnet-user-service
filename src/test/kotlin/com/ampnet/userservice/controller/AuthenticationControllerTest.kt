@@ -6,12 +6,12 @@ import com.ampnet.userservice.controller.pojo.response.AuthTokenResponse
 import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.exception.SocialException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.Matchers.hasKey
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -21,7 +21,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @ActiveProfiles("SocialMockConfig")
@@ -44,6 +43,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
 
     @BeforeEach
     fun clearDatabase() {
+        Mockito.reset(socialService)
         databaseCleanerService.deleteAllUsers()
     }
 
@@ -73,7 +73,6 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .content(requestBody))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                    .andExpect(jsonPath("$").value(hasKey("token")))
                     .andReturn()
         }
         verify("Token is valid.") {
@@ -106,7 +105,6 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .content(requestBody))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                    .andExpect(jsonPath("$").value(hasKey("token")))
                     .andReturn()
         }
         verify("Token is valid.") {
@@ -139,7 +137,6 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .content(requestBody))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                    .andExpect(jsonPath("$").value(hasKey("token")))
                     .andReturn()
         }
         verify("Token is valid.") {
@@ -228,6 +225,65 @@ class AuthenticationControllerTest : ControllerTestBase() {
             val errorResponse = objectMapper.readValue<ErrorResponse>(result.response.contentAsString)
             val expectedErrorCode = getResponseErrorCode(ErrorCode.AUTH_INVALID_LOGIN_METHOD)
             assert(errorResponse.errCode == expectedErrorCode)
+        }
+    }
+
+    @Test
+    fun signInWithGoogleException() {
+        suppose("Social service is mocked to return valid Google user.") {
+            Mockito.`when`(socialService.getGoogleEmail(googleTestUser.googleToken))
+                .thenThrow(SocialException(ErrorCode.REG_SOCIAL, "Google"))
+        }
+        suppose("Social user identified by Facebook exists in our database.") {
+            user = createUser(googleTestUser.email, googleTestUser.authMethod)
+        }
+        verify("User can fetch token with valid credentials.") {
+            val requestBody = """
+                |{
+                |  "login_method" : "${googleTestUser.authMethod}",
+                |  "credentials" : {
+                |    "token" : "${googleTestUser.googleToken}"
+                |  }
+                |}
+            """.trimMargin()
+            result = mockMvc.perform(
+                post(tokenPath)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+                .andExpect(status().isBadGateway)
+                .andReturn()
+
+            verifyResponseErrorCode(result, ErrorCode.REG_SOCIAL)
+        }
+    }
+
+    @Test
+    fun signInWithFacebookException() {
+        suppose("Social service is mocked to return valid Google user.") {
+            Mockito.`when`(socialService.getFacebookEmail(facebookTestUser.fbToken))
+                .thenThrow(SocialException(ErrorCode.REG_SOCIAL, "Facebook"))
+        }
+        suppose("Social user identified by Facebook exists in our database.") {
+            user = createUser(facebookTestUser.email, facebookTestUser.authMethod)
+        }
+
+        verify("User can fetch token with valid credentials.") {
+            val requestBody = """
+                |{
+                |  "login_method" : "${facebookTestUser.authMethod}",
+                |  "credentials" : {
+                |    "token" : "${facebookTestUser.fbToken}"
+                |  }
+                |}
+            """.trimMargin()
+            result = mockMvc.perform(
+                post(tokenPath)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+                .andExpect(status().isBadGateway)
+                .andReturn()
+
+            verifyResponseErrorCode(result, ErrorCode.REG_SOCIAL)
         }
     }
 
