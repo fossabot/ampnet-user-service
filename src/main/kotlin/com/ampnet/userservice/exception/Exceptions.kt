@@ -14,7 +14,7 @@ class SocialException(val errorCode: ErrorCode, exceptionMessage: String, throwa
 
 class TokenException(exceptionMessage: String, throwable: Throwable? = null) : Exception(exceptionMessage, throwable)
 
-class InternalException(val errorCode: ErrorCode, exceptionMessage: String, throwable: Throwable? = null) :
-    Exception(exceptionMessage, throwable)
-
 class IdentyumException(exceptionMessage: String, throwable: Throwable? = null) : Exception(exceptionMessage, throwable)
+
+class IdentyumCommunicationException(val errorCode: ErrorCode, exceptionMessage: String, throwable: Throwable? = null) :
+    Exception(exceptionMessage, throwable)

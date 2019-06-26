@@ -4,7 +4,7 @@ import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.controller.pojo.request.IdentyumPayloadRequest
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.IdentyumException
-import com.ampnet.userservice.exception.InternalException
+import com.ampnet.userservice.exception.IdentyumCommunicationException
 import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.service.IdentyumService
@@ -42,6 +42,8 @@ class IdentyumServiceImpl(
     private val fieldUsername = "username"
     private val fieldPassword = "password"
 
+    @Transactional(readOnly = true)
+    @Throws(IdentyumCommunicationException::class)
     override fun getToken(): String {
         val request = generateIdentyumRequest()
         try {
@@ -51,10 +53,10 @@ class IdentyumServiceImpl(
                     return it
                 }
             }
-            throw InternalException(ErrorCode.REG_IDENTYUM,
+            throw IdentyumCommunicationException(ErrorCode.REG_IDENTYUM_TOKEN,
                     "Could not get Identyum token. Status code: ${response.statusCode.value()}. Body: ${response.body}")
         } catch (ex: RestClientException) {
-            throw InternalException(ErrorCode.REG_IDENTYUM, "Could not reach Identyum", ex)
+            throw IdentyumCommunicationException(ErrorCode.REG_IDENTYUM_TOKEN, "Could not reach Identyum", ex)
         }
     }
 

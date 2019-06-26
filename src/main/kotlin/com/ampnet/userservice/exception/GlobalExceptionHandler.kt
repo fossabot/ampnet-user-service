@@ -39,10 +39,10 @@ class GlobalExceptionHandler {
         return generateErrorResponse(exception.errorCode, exception.message)
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(InternalException::class)
-    fun handleInternalException(exception: InternalException): ErrorResponse {
-        logger.error("InternalException", exception)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    @ExceptionHandler(IdentyumCommunicationException::class)
+    fun handleInternalException(exception: IdentyumCommunicationException): ErrorResponse {
+        logger.error("IdentyumCommunicationException", exception)
         return generateErrorResponse(exception.errorCode, exception.message)
     }
 

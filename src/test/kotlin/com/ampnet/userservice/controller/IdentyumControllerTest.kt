@@ -56,11 +56,11 @@ class IdentyumControllerTest : ControllerTestBase() {
             mockIdentyumResponse(MockRestResponseCreators.withServerError())
         }
 
-        verify("Controller will return Idetyum error code") {
+        verify("Controller will return Identyum token error code") {
             val result = mockMvc.perform(get(identyumTokenPath))
-                    .andExpect(MockMvcResultMatchers.status().isInternalServerError)
+                    .andExpect(MockMvcResultMatchers.status().isBadGateway)
                     .andReturn()
-            verifyResponseErrorCode(result, ErrorCode.REG_IDENTYUM)
+            verifyResponseErrorCode(result, ErrorCode.REG_IDENTYUM_TOKEN)
         }
     }
 
@@ -70,11 +70,11 @@ class IdentyumControllerTest : ControllerTestBase() {
             mockIdentyumResponse(MockRestResponseCreators.withNoContent())
         }
 
-        verify("Controller will return Idetyum error code") {
+        verify("Controller will return Identyum token error code") {
             val result = mockMvc.perform(get(identyumTokenPath))
-                    .andExpect(MockMvcResultMatchers.status().isInternalServerError)
+                    .andExpect(MockMvcResultMatchers.status().isBadGateway)
                     .andReturn()
-            verifyResponseErrorCode(result, ErrorCode.REG_IDENTYUM)
+            verifyResponseErrorCode(result, ErrorCode.REG_IDENTYUM_TOKEN)
         }
     }
 
