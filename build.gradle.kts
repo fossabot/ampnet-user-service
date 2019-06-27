@@ -17,7 +17,7 @@ val jjwtVersion = "0.10.6"
 val junitVersion = "5.3.2"
 
 group = "com.ampnet"
-version = "0.0.1"
+version = "0.0.2"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
