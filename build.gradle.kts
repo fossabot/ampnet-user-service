@@ -1,14 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("plugin.jpa") version "1.3.31"
-    kotlin("jvm") version "1.3.31"
-    kotlin("plugin.spring") version "1.3.31"
-    id("org.springframework.boot") version "2.1.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
-    id("com.google.cloud.tools.jib") version "1.2.0"
-    id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
-    id("io.gitlab.arturbosch.detekt").version("1.0.0-RC14")
+    kotlin("plugin.jpa") version "1.3.40"
+    kotlin("jvm") version "1.3.40"
+    kotlin("plugin.spring") version "1.3.40"
+    id("org.springframework.boot") version "2.1.6.RELEASE"
+    id("io.spring.dependency-management") version "1.0.8.RELEASE"
+    id("com.google.cloud.tools.jib") version "1.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "8.1.0"
+    id("io.gitlab.arturbosch.detekt").version("1.0.0-RC15")
     id("org.asciidoctor.convert") version "2.2.0"
     jacoco
 }
@@ -17,7 +17,7 @@ val jjwtVersion = "0.10.6"
 val junitVersion = "5.3.2"
 
 group = "com.ampnet"
-version = "0.0.3"
+version = "0.0.4"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -46,7 +46,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
     implementation("io.github.microutils:kotlin-logging:1.6.26")
     implementation("net.logstash.logback:logstash-logback-encoder:5.3")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.1.4")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.1.5")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude("junit")
