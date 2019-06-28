@@ -1,8 +1,8 @@
 <configuration scan="false">
 
     <property name="LOG_DIR" value="/var/log" />
-    <property name="LOG_FILE_PREFIX" value="crowdfunding-backend" />
-    <property name="LOG_ERROR_FILE_PREFIX" value="crowdfunding-backend-error" />
+    <property name="LOG_FILE_PREFIX" value="user-service" />
+    <property name="LOG_ERROR_FILE_PREFIX" value="user-service-error" />
     <property name="MAX_HISTORY" value="7" />
     <property name="PATTERN_COLOR" value="%date{ISO8601} [%cyan(%thread)] %highlight(%-5level) %yellow(%logger{100}) - %msg%n" />
 
