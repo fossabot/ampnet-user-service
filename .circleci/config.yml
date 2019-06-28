@@ -90,6 +90,7 @@ workflows:
       - deploy:
           requires:
             - test
+            - codeQuality
           filters:
             branches:
               only: master
