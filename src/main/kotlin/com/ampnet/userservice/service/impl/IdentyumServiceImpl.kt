@@ -65,6 +65,8 @@ class IdentyumServiceImpl(
     @Throws(IdentyumException::class)
     override fun createUserInfo(request: IdentyumPayloadRequest): UserInfo {
         val decryptedData = decrypt(request.payload, applicationProperties.identyum.key, request.reportUuid)
+        // TODO: remove after successful integration
+        logger.debug { "Identyum decrypted data: $decryptedData" }
         val identyumUser: IdentyumUserModel = objectMapper.readValue(decryptedData)
 
         if (userInfoRepository.findByWebSessionUuid(request.webSessionUuid).isPresent) {
