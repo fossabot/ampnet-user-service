@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("plugin.jpa") version "1.3.40"
-    kotlin("jvm") version "1.3.40"
-    kotlin("plugin.spring") version "1.3.40"
+    val kotlinVersion = "1.3.40"
+    kotlin("plugin.jpa") version kotlinVersion
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.spring") version kotlinVersion
+
     id("org.springframework.boot") version "2.1.6.RELEASE"
     id("io.spring.dependency-management") version "1.0.8.RELEASE"
     id("com.google.cloud.tools.jib") version "1.3.0"
@@ -13,11 +15,8 @@ plugins {
     jacoco
 }
 
-val jjwtVersion = "0.10.6"
-val junitVersion = "5.3.2"
-
 group = "com.ampnet"
-version = "0.0.5"
+version = "0.0.6"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -26,6 +25,9 @@ repositories {
 }
 
 dependencies {
+    val jjwtVersion = "0.10.6"
+    val junitVersion = "5.3.2"
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")

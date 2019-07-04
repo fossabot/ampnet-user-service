@@ -10,6 +10,9 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.service.IdentyumService
 import com.ampnet.userservice.service.pojo.IdentyumUserModel
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KLogging
@@ -64,18 +67,26 @@ class IdentyumServiceImpl(
     @Transactional
     @Throws(IdentyumException::class)
     override fun createUserInfo(request: IdentyumPayloadRequest): UserInfo {
-        val decryptedData = decrypt(request.payload, applicationProperties.identyum.key, request.reportUuid)
-        // TODO: remove after successful integration
-        logger.debug { "Identyum decrypted data: $decryptedData" }
-        val identyumUser: IdentyumUserModel = objectMapper.readValue(decryptedData)
-
         if (userInfoRepository.findByWebSessionUuid(request.webSessionUuid).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_IDENTYUM_EXISTS,
                 "UserInfo with this webSessionUuid already exists! webSessionUuid: ${request.webSessionUuid}")
         }
-        val userInfo = createUserInfoFromIdentyumUser(identyumUser)
-        userInfo.webSessionUuid = request.webSessionUuid
-        return userInfoRepository.save(userInfo)
+
+        val decryptedData = decrypt(request.payload, applicationProperties.identyum.key, request.reportUuid)
+        try {
+            val identyumUser: IdentyumUserModel = objectMapper.readValue(decryptedData)
+            val userInfo = createUserInfoFromIdentyumUser(identyumUser)
+            userInfo.webSessionUuid = request.webSessionUuid
+            return userInfoRepository.save(userInfo)
+        } catch (ex: JsonProcessingException) {
+            logger.debug { "Identyum decrypted data: $decryptedData" }
+            when (ex) {
+                is JsonMappingException ->
+                    throw IdentyumException("JSON structured not in defined format, missing some filed. ", ex)
+                is JsonParseException -> throw IdentyumException("Content not in valid JSON format", ex)
+                else -> throw IdentyumException("Cannot parse decrypted data", ex)
+            }
+        }
     }
 
     @Suppress("TooGenericExceptionCaught")
