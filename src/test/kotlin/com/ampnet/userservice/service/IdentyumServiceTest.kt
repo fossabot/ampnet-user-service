@@ -4,9 +4,12 @@ import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.config.JsonConfig
 import com.ampnet.userservice.config.RestTemplateConfig
 import com.ampnet.userservice.controller.pojo.request.IdentyumPayloadRequest
+import com.ampnet.userservice.controller.pojo.request.SignupRequestUserInfo
+import com.ampnet.userservice.exception.IdentyumException
 import com.ampnet.userservice.service.impl.IdentyumServiceImpl
 import com.ampnet.userservice.service.pojo.IdentyumDocumentModel
 import com.ampnet.userservice.service.pojo.IdentyumUserModel
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -97,6 +100,27 @@ class IdentyumServiceTest : JpaServiceTestBase() {
         verify("Service can create UserInfo from IdentyumUser") {
             val userInfo = identyumService.createUserInfoFromIdentyumUser(testContext.identyumUser)
             assertThat(userInfo.identyumNumber).isEqualTo("1234-1234-1234-1234")
+        }
+    }
+
+    @Test
+    fun testS() {
+        val string = """
+            |{
+            |       "email" : "email@mail.com"
+            |}
+        """.trimMargin()
+
+        try {
+            try {
+                val req: SignupRequestUserInfo = objectMapper.readValue(string)
+                println(req)
+            } catch (ex: JsonMappingException) {
+                println(ex.message)
+                throw IdentyumException("test", ex)
+            }
+        } catch (ex: IdentyumException) {
+            println(ex.message)
         }
     }
 

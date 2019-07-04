@@ -24,7 +24,7 @@ class IdentyumController(private val identyumService: IdentyumService) {
     }
 
     @PostMapping("/identyum")
-    fun postUserData(@RequestBody request: IdentyumPayloadRequest): ResponseEntity<Unit> {
+    fun postUserData(@RequestBody request: IdentyumPayloadRequest): ResponseEntity<String> {
         logger.info { "Received Identyum payload: $request" }
         return try {
             val userInfo = identyumService.createUserInfo(request)
@@ -32,7 +32,7 @@ class IdentyumController(private val identyumService: IdentyumService) {
             ResponseEntity.ok().build()
         } catch (ex: IdentyumException) {
             logger.error("Could not store UserInfo from Identyum request", ex)
-            ResponseEntity.unprocessableEntity().build()
+            ResponseEntity.unprocessableEntity().body("Error: ${ex.message}\n Cause: ${ex.cause?.message}")
         }
     }
 }
