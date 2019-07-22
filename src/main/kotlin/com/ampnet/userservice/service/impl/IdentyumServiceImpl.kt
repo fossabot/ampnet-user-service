@@ -111,14 +111,20 @@ class IdentyumServiceImpl(
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance()
         val document = identyumUser.document.firstOrNull() ?: throw IdentyumException("Missing document")
         userInfo.apply {
-            phoneNumber = identyumUser.phones.firstOrNull()?.phoneNumber ?: throw IdentyumException("Missing phone")
+            firstName = document.firstName
+            lastName = document.lastName
             verifiedEmail = identyumUser.emails.firstOrNull()?.email ?: throw IdentyumException("Missing email")
+            phoneNumber = identyumUser.phones.firstOrNull()?.phoneNumber ?: throw IdentyumException("Missing phone")
             country = document.countryCode
             dateOfBirth = document.dateOfBirth
             identyumNumber = identyumUser.identyumUuid
-            idType = document.type
-            idNumber = document.docNumber
-            personalId = document.personalIdentificationNumber.value
+            documentType = document.type
+            documentNumber = document.docNumber
+            citizenship = document.citizenship
+            resident = document.resident
+            addressCity = document.address.city
+            addressCounty = document.address.county
+            addressStreet = document.address.streetAndNumber
             createdAt = ZonedDateTime.now()
             connected = false
         }
