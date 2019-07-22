@@ -10,6 +10,7 @@ import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.MailToken
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
+import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
@@ -121,6 +122,11 @@ class UserServiceImpl(
             UserRoleType.USER -> userRole
         }
         return userRepository.save(user)
+    }
+
+    @Transactional(readOnly = true)
+    override fun findUserInfo(webSessionUuid: String): UserInfo? {
+        return ServiceUtils.wrapOptional(userInfoRepository.findByWebSessionUuid(webSessionUuid))
     }
 
     private fun createUserFromRequest(request: CreateUserServiceRequest): User {

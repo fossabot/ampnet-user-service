@@ -72,6 +72,7 @@ class WebSecurityConfig(
             .antMatchers("/token/**", "/signup").permitAll()
             .antMatchers("/mail-confirmation").permitAll()
             .antMatchers("/mail-check").permitAll()
+            .antMatchers("/mail-user-pending/*").permitAll()
             .antMatchers("/issuer/**").permitAll()
             .antMatchers("/identyum/**").permitAll()
             .antMatchers(HttpMethod.POST, "/tx_broadcast").permitAll()
