@@ -24,6 +24,12 @@ include::{snippets}/RegistrationControllerTest/signupUsingGoogleMethod/http-resp
 
 === Email method
 
+==== Get confirmed email
+.Request
+include::{snippets}/RegistrationControllerTest/mustBeAbleToGetMailForWebSessionUuid/http-request.adoc[]
+.Response
+include::{snippets}/RegistrationControllerTest/mustBeAbleToGetMailForWebSessionUuid/http-response.adoc[]
+
 ==== Successful user signup
 .Request
 include::{snippets}/RegistrationControllerTest/mustBeAbleToSignUpUser/http-request.adoc[]
