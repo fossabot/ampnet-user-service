@@ -89,6 +89,11 @@ class IdentyumServiceImpl(
         }
     }
 
+    @Transactional(readOnly = true)
+    override fun findUserInfo(webSessionUuid: String): UserInfo? {
+        return ServiceUtils.wrapOptional(userInfoRepository.findByWebSessionUuid(webSessionUuid))
+    }
+
     @Suppress("TooGenericExceptionCaught")
     fun decrypt(value: String, key: String, reportUuid: String): String {
         try {

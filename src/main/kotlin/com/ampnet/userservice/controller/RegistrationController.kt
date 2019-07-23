@@ -10,6 +10,7 @@ import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.service.IdentyumService
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
@@ -32,6 +33,7 @@ import javax.validation.Validator
 class RegistrationController(
     private val userService: UserService,
     private val socialService: SocialService,
+    private val identyumService: IdentyumService,
     private val objectMapper: ObjectMapper,
     private val validator: Validator
 ) {
@@ -85,7 +87,7 @@ class RegistrationController(
     @GetMapping("/mail-user-pending/{webSessionUuid}")
     fun getUserMailForIdentyumUuid(@PathVariable webSessionUuid: String): ResponseEntity<MailResponse> {
         logger.debug { "Received request to get email for webSessionUuid: $webSessionUuid" }
-        userService.findUserInfo(webSessionUuid)?.let {
+        identyumService.findUserInfo(webSessionUuid)?.let {
             return ResponseEntity.ok(MailResponse(it.verifiedEmail))
         }
         return ResponseEntity.notFound().build()
