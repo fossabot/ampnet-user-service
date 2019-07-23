@@ -6,6 +6,6 @@ import java.util.Optional
 import java.util.UUID
 
 interface RefreshTokenRepository : JpaRepository<RefreshToken, Int> {
-    fun findByToken(token: UUID): Optional<RefreshToken>
+    fun findByToken(token: String): Optional<RefreshToken>
     fun findByUserUuid(userUuid: UUID): Optional<RefreshToken>
 }

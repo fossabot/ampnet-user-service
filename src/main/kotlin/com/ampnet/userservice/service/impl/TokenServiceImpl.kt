@@ -21,9 +21,12 @@ class TokenServiceImpl(
     private val jwtTokenProvider: TokenProvider
 ) : TokenService {
 
+    private val refreshTokenLength = 128
+    private val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf('-', '_', '+')
+
     @Transactional
     override fun generateAccessAndRefreshForUser(user: User): AccessAndRefreshToken {
-        val token = UUID.randomUUID()
+        val token = getRandomToken()
         val refreshToken = refreshTokenRepository.save(RefreshToken(0, user, token, ZonedDateTime.now()))
         val accessToken = jwtTokenProvider.generateToken(UserPrincipal(user))
         return AccessAndRefreshToken(
@@ -36,7 +39,7 @@ class TokenServiceImpl(
 
     @Throws(TokenException::class)
     @Transactional
-    override fun generateAccessAndRefreshFromRefreshToken(token: UUID): AccessAndRefreshToken {
+    override fun generateAccessAndRefreshFromRefreshToken(token: String): AccessAndRefreshToken {
         val refreshToken = ServiceUtils.wrapOptional(refreshTokenRepository.findByToken(token))
             ?: throw TokenException("Non existing refresh token")
         val expiration = refreshToken.createdAt.plusSeconds(applicationProperties.jwt.refreshTokenValidity)
@@ -60,4 +63,9 @@ class TokenServiceImpl(
             refreshTokenRepository.delete(it)
         }
     }
+
+    private fun getRandomToken(): String = (1..refreshTokenLength)
+        .map { kotlin.random.Random.nextInt(0, charPool.size) }
+        .map(charPool::get)
+        .joinToString("")
 }

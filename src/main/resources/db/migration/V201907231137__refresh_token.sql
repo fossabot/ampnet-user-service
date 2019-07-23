@@ -1,6 +1,6 @@
 CREATE TABLE refresh_token(
     id SERIAL PRIMARY KEY,
-    token UUID NOT NULL,
+    token VARCHAR(128) NOT NULL,
     user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

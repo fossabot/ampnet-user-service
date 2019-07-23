@@ -1,7 +1,6 @@
 package com.ampnet.userservice.persistence.model
 
 import java.time.ZonedDateTime
-import java.util.UUID
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -22,8 +21,8 @@ data class RefreshToken(
     @JoinColumn(name = "user_uuid")
     var user: User,
 
-    @Column(nullable = false)
-    var token: UUID,
+    @Column(nullable = false, length = 128)
+    var token: String,
 
     @Column(nullable = false)
     var createdAt: ZonedDateTime

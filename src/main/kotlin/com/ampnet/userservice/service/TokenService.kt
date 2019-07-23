@@ -6,6 +6,6 @@ import java.util.UUID
 
 interface TokenService {
     fun generateAccessAndRefreshForUser(user: User): AccessAndRefreshToken
-    fun generateAccessAndRefreshFromRefreshToken(token: UUID): AccessAndRefreshToken
+    fun generateAccessAndRefreshFromRefreshToken(token: String): AccessAndRefreshToken
     fun deleteRefreshToken(userUuid: UUID)
 }

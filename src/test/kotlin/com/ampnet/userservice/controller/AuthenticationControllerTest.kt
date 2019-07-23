@@ -28,7 +28,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @ActiveProfiles("SocialMockConfig")
 class AuthenticationControllerTest : ControllerTestBase() {
@@ -355,7 +354,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     @Test
     fun mustNotBeAbleToGetAccessTokenWithNonExistingRefreshToken() {
         verify("User will get bad request response") {
-            val request = RefreshTokenRequest(UUID.randomUUID())
+            val request = RefreshTokenRequest("non-existing-refresh-token")
             mockMvc.perform(post(tokenRefreshPath)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -400,7 +399,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     }
 
     private fun createRefreshToken(user: User, createdAt: ZonedDateTime = ZonedDateTime.now()): RefreshToken {
-        val refreshToken = RefreshToken(0, user, UUID.randomUUID(), createdAt)
+        val refreshToken = RefreshToken(0, user, "9asdf90asf90asf9asfis90fkas90fkas", createdAt)
         return refreshTokenRepository.save(refreshToken)
     }
 
