@@ -78,11 +78,6 @@ class UserServiceImpl(
     }
 
     @Transactional
-    override fun delete(userUuid: UUID) {
-        userRepository.deleteById(userUuid)
-    }
-
-    @Transactional
     override fun confirmEmail(token: UUID): User? {
         ServiceUtils.wrapOptional(mailTokenRepository.findByToken(token))?.let { mailToken ->
             if (mailToken.isExpired()) {
@@ -122,11 +117,6 @@ class UserServiceImpl(
             UserRoleType.USER -> userRole
         }
         return userRepository.save(user)
-    }
-
-    @Transactional(readOnly = true)
-    override fun findUserInfo(webSessionUuid: String): UserInfo? {
-        return ServiceUtils.wrapOptional(userInfoRepository.findByWebSessionUuid(webSessionUuid))
     }
 
     private fun createUserFromRequest(request: CreateUserServiceRequest): User {
