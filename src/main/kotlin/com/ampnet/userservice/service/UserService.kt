@@ -2,7 +2,6 @@ package com.ampnet.userservice.service
 
 import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import java.util.UUID
 

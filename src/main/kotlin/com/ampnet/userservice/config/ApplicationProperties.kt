@@ -15,7 +15,8 @@ class ApplicationProperties {
 @Suppress("MagicNumber")
 class JwtProperties {
     lateinit var signingKey: String
-    var validityInMinutes: Int = 60
+    var accessTokenValidity: Int = 60 * 60
+    var refreshTokenValidity: Int = 60 * 60 * 24 * 30
 }
 
 class MailProperties {
