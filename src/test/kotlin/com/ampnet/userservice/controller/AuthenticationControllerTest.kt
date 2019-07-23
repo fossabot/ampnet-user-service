@@ -4,7 +4,7 @@ import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.config.auth.TokenProvider
 import com.ampnet.userservice.config.auth.UserPrincipal
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
-import com.ampnet.userservice.controller.pojo.response.AuthTokenResponse
+import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
 import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
@@ -24,7 +24,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -81,17 +80,17 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                     post(tokenPath)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn()
+            testContext.tokenResponse = objectMapper.readValue(result.response.contentAsString)
         }
-        verify("Token is valid.") {
-            val response = objectMapper.readValue<AuthTokenResponse>(testContext.result.response.contentAsString)
-            verifyTokenForUserData(response.token)
+        verify("Access and refresh token are valid.") {
+            verifyAccessRefreshTokenResponse(testContext.tokenResponse)
         }
         verify("Refresh token is generated") {
             val optionalRefreshToken = refreshTokenRepository.findByUserUuid(testContext.user.uuid)
@@ -117,17 +116,17 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                     post(tokenPath)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn()
+            testContext.tokenResponse = objectMapper.readValue(result.response.contentAsString)
         }
-        verify("Token is valid.") {
-            val response = objectMapper.readValue<AuthTokenResponse>(testContext.result.response.contentAsString)
-            verifyTokenForUserData(response.token)
+        verify("Access and refresh token are valid.") {
+            verifyAccessRefreshTokenResponse(testContext.tokenResponse)
         }
         verify("Refresh token is generated") {
             val optionalRefreshToken = refreshTokenRepository.findByUserUuid(testContext.user.uuid)
@@ -153,17 +152,17 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                     post(tokenPath)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn()
+            testContext.tokenResponse = objectMapper.readValue(result.response.contentAsString)
         }
-        verify("Token is valid.") {
-            val response = objectMapper.readValue<AuthTokenResponse>(testContext.result.response.contentAsString)
-            verifyTokenForUserData(response.token)
+        verify("Access and refresh token are valid.") {
+            verifyAccessRefreshTokenResponse(testContext.tokenResponse)
         }
         verify("Refresh token is generated") {
             val optionalRefreshToken = refreshTokenRepository.findByUserUuid(testContext.user.uuid)
@@ -210,14 +209,14 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                     post(tokenPath)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn()
-            val error = objectMapper.readValue<ErrorResponse>(testContext.result.response.contentAsString)
+            val error = objectMapper.readValue<ErrorResponse>(result.response.contentAsString)
             val expectedErrorCode = getResponseErrorCode(ErrorCode.USER_MISSING)
             assert(error.errCode == expectedErrorCode)
         }
@@ -241,14 +240,14 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                     post(tokenPath)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                     .andReturn()
-            val errorResponse = objectMapper.readValue<ErrorResponse>(testContext.result.response.contentAsString)
+            val errorResponse = objectMapper.readValue<ErrorResponse>(result.response.contentAsString)
             val expectedErrorCode = getResponseErrorCode(ErrorCode.AUTH_INVALID_LOGIN_METHOD)
             assert(errorResponse.errCode == expectedErrorCode)
         }
@@ -272,14 +271,14 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                 post(tokenPath)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
                 .andExpect(status().isBadGateway)
                 .andReturn()
 
-            verifyResponseErrorCode(testContext.result, ErrorCode.REG_SOCIAL)
+            verifyResponseErrorCode(result, ErrorCode.REG_SOCIAL)
         }
     }
 
@@ -302,14 +301,14 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 |  }
                 |}
             """.trimMargin()
-            testContext.result = mockMvc.perform(
+            val result = mockMvc.perform(
                 post(tokenPath)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
                 .andExpect(status().isBadGateway)
                 .andReturn()
 
-            verifyResponseErrorCode(testContext.result, ErrorCode.REG_SOCIAL)
+            verifyResponseErrorCode(result, ErrorCode.REG_SOCIAL)
         }
     }
 
@@ -317,7 +316,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     fun mustBeAbleToGetAccessTokenWithRefreshToken() {
         suppose("Refresh token exists") {
             testContext.user = createUser(regularTestUser.email, regularTestUser.authMethod)
-            testContext.refreshToken = createRefreshToken(testContext.user)
+            testContext.refreshToken = createRefreshToken(testContext.user, ZonedDateTime.now().minusHours(1))
         }
 
         verify("User can get access token using refresh token") {
@@ -328,8 +327,11 @@ class AuthenticationControllerTest : ControllerTestBase() {
                 .andExpect(status().isOk)
                 .andReturn()
 
-            val response = objectMapper.readValue<AuthTokenResponse>(result.response.contentAsString)
-            verifyTokenForUserData(response.token)
+            val response = objectMapper.readValue<AccessRefreshTokenResponse>(result.response.contentAsString)
+            verifyTokenForUserData(response.accessToken)
+            assertThat(response.expiresIn).isEqualTo(applicationProperties.jwt.accessTokenValidity)
+            assertThat(response.refreshToken).isEqualTo(testContext.refreshToken.token)
+            assertThat(response.refreshTokenExpiresIn).isLessThan(applicationProperties.jwt.refreshTokenValidity)
         }
     }
 
@@ -384,6 +386,13 @@ class AuthenticationControllerTest : ControllerTestBase() {
         }
     }
 
+    private fun verifyAccessRefreshTokenResponse(response: AccessRefreshTokenResponse) {
+        verifyTokenForUserData(response.accessToken)
+        assertThat(response.expiresIn).isEqualTo(applicationProperties.jwt.accessTokenValidity)
+        assertThat(response.refreshToken).isNotNull()
+        assertThat(response.refreshTokenExpiresIn).isEqualTo(applicationProperties.jwt.refreshTokenValidity)
+    }
+
     private fun verifyTokenForUserData(token: String) {
         val tokenPrincipal = tokenProvider.parseToken(token)
         val storedUserPrincipal = UserPrincipal(testContext.user)
@@ -397,7 +406,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
 
     private class TestContext {
         lateinit var refreshToken: RefreshToken
-        lateinit var result: MvcResult
+        lateinit var tokenResponse: AccessRefreshTokenResponse
         lateinit var user: User
     }
 

@@ -1,12 +1,10 @@
 package com.ampnet.userservice.controller
 
-import com.ampnet.userservice.config.auth.TokenProvider
-import com.ampnet.userservice.config.auth.UserPrincipal
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
 import com.ampnet.userservice.controller.pojo.request.TokenRequest
 import com.ampnet.userservice.controller.pojo.request.TokenRequestSocialInfo
 import com.ampnet.userservice.controller.pojo.request.TokenRequestUserInfo
-import com.ampnet.userservice.controller.pojo.response.AuthTokenResponse
+import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
 import com.ampnet.userservice.exception.InvalidLoginMethodException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.enums.AuthMethod
@@ -14,7 +12,7 @@ import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.TokenException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.SocialService
-import com.ampnet.userservice.service.RefreshTokenService
+import com.ampnet.userservice.service.TokenService
 import com.ampnet.userservice.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
@@ -28,10 +26,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class AuthenticationController(
-    private val jwtTokenProvider: TokenProvider,
     private val userService: UserService,
     private val socialService: SocialService,
-    private val refreshTokenService: RefreshTokenService,
+    private val tokenService: TokenService,
     private val objectMapper: ObjectMapper,
     private val passwordEncoder: PasswordEncoder
 ) {
@@ -39,7 +36,7 @@ class AuthenticationController(
     companion object : KLogging()
 
     @PostMapping("/token")
-    fun generateToken(@RequestBody tokenRequest: TokenRequest): ResponseEntity<AuthTokenResponse> {
+    fun generateToken(@RequestBody tokenRequest: TokenRequest): ResponseEntity<AccessRefreshTokenResponse> {
         logger.debug { "Received request for token with: ${tokenRequest.loginMethod}" }
         val user: User = when (tokenRequest.loginMethod) {
             AuthMethod.EMAIL -> {
@@ -63,22 +60,17 @@ class AuthenticationController(
                 user
             }
         }
-
-        val token = jwtTokenProvider.generateToken(UserPrincipal(user))
-        val refreshToken = refreshTokenService.generateRefreshToken(user)
+        val accessAndRefreshToken = tokenService.generateAccessAndRefreshForUser(user)
         logger.debug { "User: ${user.uuid} successfully authenticated." }
-
-        // TODO: change response to return with refresh token and expiration time
-        return ResponseEntity.ok(AuthTokenResponse(token))
+        return ResponseEntity.ok(AccessRefreshTokenResponse(accessAndRefreshToken))
     }
 
     @PostMapping("/token/refresh")
-    fun refreshToken(@RequestBody request: RefreshTokenRequest): ResponseEntity<AuthTokenResponse> {
+    fun refreshToken(@RequestBody request: RefreshTokenRequest): ResponseEntity<AccessRefreshTokenResponse> {
         logger.debug { "Received request to refresh token" }
         return try {
-            val user = refreshTokenService.getUserForToken(request.refreshToken)
-            val newAccessToken = jwtTokenProvider.generateToken(UserPrincipal(user))
-            ResponseEntity.ok(AuthTokenResponse(newAccessToken))
+            val accessAndRefreshToken = tokenService.generateAccessAndRefreshFromRefreshToken(request.refreshToken)
+            ResponseEntity.ok(AccessRefreshTokenResponse(accessAndRefreshToken))
         } catch (ex: TokenException) {
             logger.info { ex.message }
             ResponseEntity.badRequest().build()
@@ -89,7 +81,7 @@ class AuthenticationController(
     fun logout(): ResponseEntity<Unit> {
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
         logger.debug { "Received request to logout user: ${userPrincipal.uuid}" }
-        refreshTokenService.deleteRefreshToken(userPrincipal.uuid)
+        tokenService.deleteRefreshToken(userPrincipal.uuid)
         return ResponseEntity.ok().build()
     }
 
