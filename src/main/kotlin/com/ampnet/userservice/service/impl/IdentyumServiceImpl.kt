@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KLogging
 import org.springframework.http.HttpEntity
@@ -79,7 +80,8 @@ class IdentyumServiceImpl(
             userInfo.webSessionUuid = request.webSessionUuid
             return userInfoRepository.save(userInfo)
         } catch (ex: JsonProcessingException) {
-            logger.debug { "Identyum decrypted data: $decryptedData" }
+            val trimmedDecryptedData = removeDocumentImageData(decryptedData)
+            logger.warn { "Identyum decrypted data: $trimmedDecryptedData" }
             when (ex) {
                 is JsonMappingException ->
                     throw IdentyumException("JSON structured not in defined format, missing some filed. ", ex)
@@ -134,6 +136,21 @@ class IdentyumServiceImpl(
             connected = false
         }
         return userInfo
+    }
+
+    internal fun removeDocumentImageData(jsonString: String): String {
+        val jsonNode = objectMapper.readTree(jsonString)
+        val documents = jsonNode.get("document")
+        if (documents.isArray) {
+            documents.iterator().forEach {
+                if (it is ObjectNode) {
+                    it.remove("docBackImg")
+                    it.remove("docFrontImg")
+                    it.remove("docFaceImg")
+                }
+            }
+        }
+        return objectMapper.writeValueAsString(jsonNode)
     }
 
     private fun generateIdentyumRequest(): HttpEntity<MultiValueMap<String, String>> {
