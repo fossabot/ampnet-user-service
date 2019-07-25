@@ -127,9 +127,9 @@ class IdentyumServiceImpl(
             documentNumber = document.docNumber
             citizenship = document.citizenship
             resident = document.resident
-            addressCity = document.address.city
-            addressCounty = document.address.county
-            addressStreet = document.address.streetAndNumber
+            addressCity = document.address?.city
+            addressCounty = document.address?.county
+            addressStreet = document.address?.streetAndNumber
             createdAt = ZonedDateTime.now()
             connected = false
         }
