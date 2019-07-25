@@ -97,7 +97,7 @@ class IdentyumServiceImpl(
     }
 
     @Suppress("TooGenericExceptionCaught")
-    fun decrypt(value: String, key: String, reportUuid: String): String {
+    internal fun decrypt(value: String, key: String, reportUuid: String): String {
         try {
             val md = MessageDigest.getInstance("MD5")
             val keyMD5 = md.digest(key.toByteArray())
@@ -114,7 +114,7 @@ class IdentyumServiceImpl(
     }
 
     @Suppress("ThrowsCount")
-    fun createUserInfoFromIdentyumUser(identyumUser: IdentyumUserModel): UserInfo {
+    internal fun createUserInfoFromIdentyumUser(identyumUser: IdentyumUserModel): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance()
         val document = identyumUser.document.firstOrNull() ?: throw IdentyumException("Missing document")
         userInfo.apply {
