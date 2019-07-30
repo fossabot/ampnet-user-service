@@ -12,6 +12,7 @@ import com.ampnet.userservice.exception.SocialException
 import com.ampnet.userservice.persistence.model.RefreshToken
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.RefreshTokenRepository
+import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -21,13 +22,12 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.ZonedDateTime
+import java.util.UUID
 
 @ActiveProfiles("SocialMockConfig")
 class AuthenticationControllerTest : ControllerTestBase() {
@@ -363,16 +363,15 @@ class AuthenticationControllerTest : ControllerTestBase() {
     }
 
     @Test
+    @WithMockCrowdfoundUser(uuid = "8a733721-9bb3-48b1-90b9-6463ac1493eb")
     fun mustBeAbleToLogoutUser() {
         suppose("Refresh token exists") {
-            testContext.user = createUser(regularTestUser.email, regularTestUser.authMethod)
+            testContext.user = createUser(
+                regularTestUser.email,
+                regularTestUser.authMethod,
+                uuid = UUID.fromString("8a733721-9bb3-48b1-90b9-6463ac1493eb")
+            )
             testContext.refreshToken = createRefreshToken(testContext.user)
-        }
-        suppose("User is authenticated") {
-            val userPrincipal = UserPrincipal(testContext.user)
-            val token = UsernamePasswordAuthenticationToken(userPrincipal, "", testContext.user.getAuthorities())
-            val securityContext = SecurityContextHolder.getContext()
-            securityContext.authentication = token
         }
 
         verify("User can logout") {
