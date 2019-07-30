@@ -78,11 +78,16 @@ abstract class ControllerTestBase : TestBase() {
         assert(response.errCode == expectedErrorCode)
     }
 
-    protected fun createUser(email: String, auth: AuthMethod = AuthMethod.EMAIL, password: String? = null): User {
-        return createUser(email, auth, password, createUserInfo())
+    protected fun createUser(
+        email: String,
+        auth: AuthMethod = AuthMethod.EMAIL,
+        password: String? = null,
+        uuid: UUID = UUID.randomUUID()
+    ): User {
+        return createUser(email, auth, password, uuid, createUserInfo())
     }
 
-    protected fun createUser(email: String, auth: AuthMethod, password: String?, userInfo: UserInfo): User {
+    protected fun createUser(email: String, auth: AuthMethod, password: String?, uuid: UUID, userInfo: UserInfo): User {
         val user = User::class.java.getConstructor().newInstance().apply {
             authMethod = auth
             createdAt = ZonedDateTime.now()
@@ -90,7 +95,7 @@ abstract class ControllerTestBase : TestBase() {
             enabled = true
             role = roleRepository.getOne(UserRoleType.USER.id)
             this.userInfo = userInfo
-            uuid = UUID.randomUUID()
+            this.uuid = uuid
             this.password = passwordEncoder.encode(password.orEmpty())
         }
         return userRepository.save(user)

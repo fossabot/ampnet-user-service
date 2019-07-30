@@ -18,3 +18,5 @@ class IdentyumException(exceptionMessage: String, throwable: Throwable? = null) 
 
 class IdentyumCommunicationException(val errorCode: ErrorCode, exceptionMessage: String, throwable: Throwable? = null) :
     Exception(exceptionMessage, throwable)
+
+class BankAccountException(exceptionMessage: String) : Exception(exceptionMessage)

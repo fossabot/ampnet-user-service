@@ -8,6 +8,7 @@ import org.springframework.security.test.context.support.WithSecurityContext
 @Target(AnnotationTarget.FUNCTION)
 @WithSecurityContext(factory = WithMockUserSecurityFactory::class)
 annotation class WithMockCrowdfoundUser(
+    val uuid: String = "8a733721-9bb3-48b1-90b9-6463ac1493eb",
     val email: String = "user@email.com",
     val role: UserRoleType = UserRoleType.USER,
     val privileges: Array<PrivilegeType> = [],

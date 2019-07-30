@@ -27,4 +27,9 @@ class DatabaseCleanerService(val em: EntityManager) {
     fun deleteAllRefreshTokens() {
         em.createNativeQuery("TRUNCATE refresh_token CASCADE").executeUpdate()
     }
+
+    @Transactional
+    fun deleteAllBankAccounts() {
+        em.createNativeQuery("TRUNCATE bank_account").executeUpdate()
+    }
 }

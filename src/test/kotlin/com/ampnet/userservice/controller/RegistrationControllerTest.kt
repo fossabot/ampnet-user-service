@@ -462,7 +462,7 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     private fun saveTestUser(): User {
         val userInfo = createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        val user = createUser(testUser.email, testUser.authMethod, testUser.password, userInfo)
+        val user = createUser(testUser.email, testUser.authMethod, testUser.password, UUID.randomUUID(), userInfo)
         testUser.uuid = user.uuid
         return user
     }

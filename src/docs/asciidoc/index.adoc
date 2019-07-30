@@ -225,3 +225,24 @@ Missing privilege: `PWA_PROFILE`
 include::{snippets}/UserControllerTest/mustNotBeAbleToChangeRoleWithUserRole/http-request.adoc[]
 .Response
 include::{snippets}/UserControllerTest/mustNotBeAbleToChangeRoleWithUserRole/http-response.adoc[]
+
+=== Bank account
+Collection of endpoints for user bank account
+
+==== Get accounts
+.Request
+include::{snippets}/BankAccountControllerTest/mustBeAbleToGetBankAccounts/http-request.adoc[]
+.Response
+include::{snippets}/BankAccountControllerTest/mustBeAbleToGetBankAccounts/http-response.adoc[]
+
+==== Create account
+.Request
+include::{snippets}/BankAccountControllerTest/mustBeAbleToCreateIbanBankAccount/http-request.adoc[]
+.Response
+include::{snippets}/BankAccountControllerTest/mustBeAbleToCreateIbanBankAccount/http-response.adoc[]
+
+==== Delete account
+.Request
+include::{snippets}/BankAccountControllerTest/mustBeAbleToDeleteAccount/http-request.adoc[]
+.Response
+include::{snippets}/BankAccountControllerTest/mustBeAbleToDeleteAccount/http-response.adoc[]

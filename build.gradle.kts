@@ -19,7 +19,7 @@ plugins {
 }
 
 group = "com.ampnet"
-version = "0.3.2"
+version = "0.3.3"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -52,6 +52,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:5.3")
     implementation("io.micrometer:micrometer-registry-prometheus:1.1.5")
     implementation("net.devh:grpc-spring-boot-starter:2.4.0.RELEASE")
+    implementation("org.iban4j:iban4j:3.2.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude("junit")
