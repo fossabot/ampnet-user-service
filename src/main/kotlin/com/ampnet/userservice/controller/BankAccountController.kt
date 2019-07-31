@@ -36,7 +36,7 @@ class BankAccountController(
         logger.debug { "Received request to add bank account: $request" }
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
         return try {
-            val bankAccount = bankAccountService.createBankAccount(userPrincipal.uuid, request.bankAccount)
+            val bankAccount = bankAccountService.createBankAccount(userPrincipal.uuid, request)
             ResponseEntity.ok(BankAccountResponse(bankAccount))
         } catch (ex: BankAccountException) {
             ResponseEntity.badRequest().build()

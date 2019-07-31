@@ -1,5 +1,6 @@
 package com.ampnet.userservice.service.impl
 
+import com.ampnet.userservice.controller.pojo.request.BankAccountRequest
 import com.ampnet.userservice.exception.BankAccountException
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.ResourceNotFoundException
@@ -8,7 +9,7 @@ import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.BankAccountRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.BankAccountService
-import mu.KotlinLogging
+import mu.KLogging
 import org.iban4j.BicFormatException
 import org.iban4j.BicUtil
 import org.iban4j.Iban4jException
@@ -24,11 +25,7 @@ class BankAccountServiceImpl(
     private val userRepository: UserRepository
 ) : BankAccountService {
 
-    private companion object {
-        private val logger = KotlinLogging.logger {}
-        private const val IBAN_FORMAT = "IBAN"
-        private const val BIC_FORMAT = "BIC"
-    }
+    companion object : KLogging()
 
     @Transactional(readOnly = true)
     override fun findBankAccounts(userUuid: UUID): List<BankAccount> {
@@ -37,15 +34,12 @@ class BankAccountServiceImpl(
 
     @Throws(BankAccountException::class)
     @Transactional
-    override fun createBankAccount(userUuid: UUID, account: String): BankAccount {
+    override fun createBankAccount(userUuid: UUID, request: BankAccountRequest): BankAccount {
         val user = getUser(userUuid)
-        if (isIbanFormat(account)) {
-            return createBankAccount(user, account, IBAN_FORMAT)
-        }
-        if (isBicFormat(account)) {
-            return createBankAccount(user, account, BIC_FORMAT)
-        }
-        throw BankAccountException("Bank account is not in IBAN nor SWIFT-BIC format")
+        validateBankCode(request.bankCode)
+        validateIban(request.iban)
+        val bankAccount = BankAccount(0, user, request.iban, request.bankCode, ZonedDateTime.now())
+        return bankAccountRepository.save(bankAccount)
     }
 
     @Transactional
@@ -53,28 +47,21 @@ class BankAccountServiceImpl(
         bankAccountRepository.deleteByUserUuidAndId(userUuid, id)
     }
 
-    private fun createBankAccount(user: User, account: String, format: String): BankAccount {
-        val bankAccount = BankAccount(0, user, account, format, ZonedDateTime.now())
-        return bankAccountRepository.save(bankAccount)
-    }
-
-    private fun isIbanFormat(account: String): Boolean {
-        return try {
-            IbanUtil.validate(account)
-            true
-        } catch (ex: Iban4jException) {
-            logger.info { "Invalid IBAN: $account. ${ex.message}" }
-            false
+    private fun validateBankCode(bankCode: String) {
+        try {
+            BicUtil.validate(bankCode)
+        } catch (ex: BicFormatException) {
+            logger.info { "Invalid bank code: $bankCode. ${ex.message}" }
+            throw BankAccountException("Invalid bank code")
         }
     }
 
-    private fun isBicFormat(account: String): Boolean {
-        return try {
-            BicUtil.validate(account)
-            true
-        } catch (ex: BicFormatException) {
-            logger.info { "Invalid BIC: $account. ${ex.message}" }
-            false
+    private fun validateIban(iban: String) {
+        try {
+            IbanUtil.validate(iban)
+        } catch (ex: Iban4jException) {
+            logger.info { "Invalid IBAN: $iban. ${ex.message}" }
+            throw BankAccountException("Invalid IBAN")
         }
     }
 

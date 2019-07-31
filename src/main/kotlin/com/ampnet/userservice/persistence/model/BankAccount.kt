@@ -22,10 +22,10 @@ data class BankAccount(
     val user: User,
 
     @Column(nullable = false, length = 64)
-    val account: String,
+    val iban: String,
 
-    @Column(nullable = false, length = 8)
-    val format: String,
+    @Column(nullable = false, length = 16)
+    val bankCode: String,
 
     @Column(nullable = false)
     val createdAt: ZonedDateTime

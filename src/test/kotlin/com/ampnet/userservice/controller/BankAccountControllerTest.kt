@@ -44,9 +44,9 @@ class BankAccountControllerTest : ControllerTestBase() {
     @WithMockCrowdfoundUser(uuid = "8a733721-9bb3-48b1-90b9-6463ac1493eb")
     fun mustBeAbleToGetBankAccounts() {
         suppose("User has multiple bank accounts") {
-            val ibanAccount = createBankAccount(testContext.iban)
-            val bicAccount = createBankAccount(testContext.bic, "BIC")
-            testContext.bankAccounts = listOf(ibanAccount, bicAccount)
+            val firstAccount = createBankAccount(testContext.iban, testContext.bic)
+            val secondAccount = createBankAccount("AZ96AZEJ00000000001234567890", "NTSBDEB1")
+            testContext.bankAccounts = listOf(firstAccount, secondAccount)
         }
 
         verify("User can get a list of bank accounts") {
@@ -57,16 +57,17 @@ class BankAccountControllerTest : ControllerTestBase() {
 
             val bankAccounts: BankAccountListResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(bankAccounts.bankAccounts).hasSize(2)
-            assertThat(bankAccounts.bankAccounts.map { it.account })
-                .containsAll(testContext.bankAccounts.map { it.account })
+            assertThat(bankAccounts.bankAccounts.map { it.iban }).containsAll(testContext.bankAccounts.map { it.iban })
+            assertThat(bankAccounts.bankAccounts.map { it.bankCode })
+                .containsAll(testContext.bankAccounts.map { it.bankCode })
         }
     }
 
     @Test
     @WithMockCrowdfoundUser(uuid = "8a733721-9bb3-48b1-90b9-6463ac1493eb")
-    fun mustBeAbleToCreateIbanBankAccount() {
+    fun mustBeAbleToCreateBankAccount() {
         verify("User can create IBAN bank account") {
-            val request = BankAccountRequest(testContext.iban)
+            val request = BankAccountRequest(testContext.iban, testContext.bic)
             val result = mockMvc.perform(
                 post(bankAccountPath)
                     .content(objectMapper.writeValueAsString(request))
@@ -76,8 +77,8 @@ class BankAccountControllerTest : ControllerTestBase() {
                 .andReturn()
 
             val bankAccount: BankAccountResponse = objectMapper.readValue(result.response.contentAsString)
-            assertThat(bankAccount.account).isEqualTo(testContext.iban)
-            assertThat(bankAccount.format).isEqualTo("IBAN")
+            assertThat(bankAccount.iban).isEqualTo(testContext.iban)
+            assertThat(bankAccount.bankCode).isEqualTo(testContext.bic)
             assertThat(bankAccount.createdAt).isBeforeOrEqualTo(ZonedDateTime.now())
             assertThat(bankAccount.id).isNotNull()
         }
@@ -85,38 +86,8 @@ class BankAccountControllerTest : ControllerTestBase() {
             val accounts = bankAccountRepository.findByUserUuid(user.uuid)
             assertThat(accounts).hasSize(1)
             val bankAccount = accounts.first()
-            assertThat(bankAccount.account).isEqualTo(testContext.iban)
-            assertThat(bankAccount.format).isEqualTo("IBAN")
-            assertThat(bankAccount.createdAt).isBeforeOrEqualTo(ZonedDateTime.now())
-            assertThat(bankAccount.id).isNotNull()
-        }
-    }
-
-    @Test
-    @WithMockCrowdfoundUser(uuid = "8a733721-9bb3-48b1-90b9-6463ac1493eb")
-    fun mustBeAbleToCreateBicBankAccount() {
-        verify("User can create BIC bank account") {
-            val request = BankAccountRequest(testContext.bic)
-            val result = mockMvc.perform(
-                post(bankAccountPath)
-                    .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andReturn()
-
-            val bankAccount: BankAccountResponse = objectMapper.readValue(result.response.contentAsString)
-            assertThat(bankAccount.account).isEqualTo(testContext.bic)
-            assertThat(bankAccount.format).isEqualTo("BIC")
-            assertThat(bankAccount.createdAt).isBeforeOrEqualTo(ZonedDateTime.now())
-            assertThat(bankAccount.id).isNotNull()
-        }
-        verify("Bank account is stored") {
-            val accounts = bankAccountRepository.findByUserUuid(user.uuid)
-            assertThat(accounts).hasSize(1)
-            val bankAccount = accounts.first()
-            assertThat(bankAccount.account).isEqualTo(testContext.bic)
-            assertThat(bankAccount.format).isEqualTo("BIC")
+            assertThat(bankAccount.iban).isEqualTo(testContext.iban)
+            assertThat(bankAccount.bankCode).isEqualTo(testContext.bic)
             assertThat(bankAccount.createdAt).isBeforeOrEqualTo(ZonedDateTime.now())
             assertThat(bankAccount.id).isNotNull()
         }
@@ -142,9 +113,22 @@ class BankAccountControllerTest : ControllerTestBase() {
 
     @Test
     @WithMockCrowdfoundUser(uuid = "8a733721-9bb3-48b1-90b9-6463ac1493eb")
-    fun mustReturnBadRequestForInvalidBankAccount() {
+    fun mustReturnBadRequestForInvaliIban() {
         verify("User cannot create invalid bank account") {
-            val request = BankAccountRequest("invalid-bank-account")
+            val request = BankAccountRequest("invalid-iban", testContext.bic)
+            mockMvc.perform(
+                post(bankAccountPath)
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest)
+        }
+    }
+
+    @Test
+    @WithMockCrowdfoundUser(uuid = "8a733721-9bb3-48b1-90b9-6463ac1493eb")
+    fun mustReturnBadRequestForInvalidBankCode() {
+        verify("User cannot create invalid bank account") {
+            val request = BankAccountRequest(testContext.iban, "invalid-bank-code")
             mockMvc.perform(
                 post(bankAccountPath)
                     .content(objectMapper.writeValueAsString(request))

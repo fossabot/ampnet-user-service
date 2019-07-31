@@ -5,14 +5,14 @@ import java.time.ZonedDateTime
 
 data class BankAccountResponse(
     val id: Int,
-    val account: String,
-    val format: String,
+    val iban: String,
+    val bankCode: String,
     val createdAt: ZonedDateTime
 ) {
     constructor(bankAccount: BankAccount) : this(
         bankAccount.id,
-        bankAccount.account,
-        bankAccount.format,
+        bankAccount.iban,
+        bankAccount.bankCode,
         bankAccount.createdAt
     )
 }
