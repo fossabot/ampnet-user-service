@@ -14,7 +14,9 @@ enum class UserRoleType(val id: Int) {
                 PrivilegeType.PRO_ORG_INVITE,
                 PrivilegeType.PWO_ORG_INVITE,
                 PrivilegeType.PRA_WITHDRAW,
-                PrivilegeType.PWA_WITHDRAW
+                PrivilegeType.PWA_WITHDRAW,
+                PrivilegeType.PRA_DEPOSIT,
+                PrivilegeType.PWA_DEPOSIT
             )
         }
     },
