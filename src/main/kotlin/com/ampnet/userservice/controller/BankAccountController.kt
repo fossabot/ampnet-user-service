@@ -3,7 +3,6 @@ package com.ampnet.userservice.controller
 import com.ampnet.userservice.controller.pojo.request.BankAccountRequest
 import com.ampnet.userservice.controller.pojo.response.BankAccountListResponse
 import com.ampnet.userservice.controller.pojo.response.BankAccountResponse
-import com.ampnet.userservice.exception.BankAccountException
 import com.ampnet.userservice.service.BankAccountService
 import mu.KLogging
 import org.springframework.http.ResponseEntity
@@ -35,12 +34,8 @@ class BankAccountController(
     fun createBankAccount(@RequestBody request: BankAccountRequest): ResponseEntity<BankAccountResponse> {
         logger.debug { "Received request to add bank account: $request" }
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
-        return try {
-            val bankAccount = bankAccountService.createBankAccount(userPrincipal.uuid, request)
-            ResponseEntity.ok(BankAccountResponse(bankAccount))
-        } catch (ex: BankAccountException) {
-            ResponseEntity.badRequest().build()
-        }
+        val bankAccount = bankAccountService.createBankAccount(userPrincipal.uuid, request)
+        return ResponseEntity.ok(BankAccountResponse(bankAccount))
     }
 
     @DeleteMapping("/bank-account/{id}")

@@ -1,8 +1,8 @@
 package com.ampnet.userservice.service.impl
 
 import com.ampnet.userservice.controller.pojo.request.BankAccountRequest
-import com.ampnet.userservice.exception.BankAccountException
 import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.BankAccount
 import com.ampnet.userservice.persistence.model.User
@@ -32,7 +32,6 @@ class BankAccountServiceImpl(
         return bankAccountRepository.findByUserUuid(userUuid)
     }
 
-    @Throws(BankAccountException::class)
     @Transactional
     override fun createBankAccount(userUuid: UUID, request: BankAccountRequest): BankAccount {
         val user = getUser(userUuid)
@@ -52,7 +51,7 @@ class BankAccountServiceImpl(
             BicUtil.validate(bankCode)
         } catch (ex: BicFormatException) {
             logger.info { "Invalid bank code: $bankCode. ${ex.message}" }
-            throw BankAccountException("Invalid bank code")
+            throw InvalidRequestException(ErrorCode.USER_BANK_INVALID, ex.message.orEmpty())
         }
     }
 
@@ -61,7 +60,7 @@ class BankAccountServiceImpl(
             IbanUtil.validate(iban)
         } catch (ex: Iban4jException) {
             logger.info { "Invalid IBAN: $iban. ${ex.message}" }
-            throw BankAccountException("Invalid IBAN")
+            throw InvalidRequestException(ErrorCode.USER_BANK_INVALID, ex.message.orEmpty())
         }
     }
 
