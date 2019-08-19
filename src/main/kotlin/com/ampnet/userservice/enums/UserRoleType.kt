@@ -13,6 +13,8 @@ enum class UserRoleType(val id: Int) {
                 PrivilegeType.PWA_ORG_APPROVE,
                 PrivilegeType.PRO_ORG_INVITE,
                 PrivilegeType.PWO_ORG_INVITE,
+                PrivilegeType.PRA_WALLET,
+                PrivilegeType.PWA_WALLET,
                 PrivilegeType.PRA_WITHDRAW,
                 PrivilegeType.PWA_WITHDRAW,
                 PrivilegeType.PRA_DEPOSIT,
