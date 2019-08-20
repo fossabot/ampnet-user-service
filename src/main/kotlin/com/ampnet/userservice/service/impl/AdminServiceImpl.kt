@@ -93,9 +93,9 @@ class AdminServiceImpl(
             "000000",
             "NON",
             false,
-            "admin",
-            "admin",
-            "admin",
+            null,
+            null,
+            null,
             ZonedDateTime.now(),
             true
         )
