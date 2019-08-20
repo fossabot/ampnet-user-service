@@ -11,6 +11,7 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
+import com.ampnet.userservice.service.MailService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +40,7 @@ import java.util.UUID
 abstract class ControllerTestBase : TestBase() {
 
     protected val defaultEmail = "user@email.com"
-    protected val defaultUuid = UUID.fromString("8a733721-9bb3-48b1-90b9-6463ac1493eb")
+    protected val defaultUuid: UUID = UUID.fromString("8a733721-9bb3-48b1-90b9-6463ac1493eb")
 
     @Autowired
     protected lateinit var objectMapper: ObjectMapper
@@ -53,6 +54,8 @@ abstract class ControllerTestBase : TestBase() {
     protected lateinit var userInfoRepository: UserInfoRepository
     @Autowired
     protected lateinit var passwordEncoder: PasswordEncoder
+    @Autowired
+    protected lateinit var mailService: MailService
 
     protected lateinit var mockMvc: MockMvc
 

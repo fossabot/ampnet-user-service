@@ -12,7 +12,6 @@ import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
-import com.ampnet.userservice.service.MailService
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
@@ -47,8 +46,6 @@ class RegistrationControllerTest : ControllerTestBase() {
     private lateinit var socialService: SocialService
     @Autowired
     private lateinit var mailTokenRepository: MailTokenRepository
-    @Autowired
-    private lateinit var mailService: MailService
 
     private lateinit var testUser: TestUser
     private lateinit var testContext: TestContext

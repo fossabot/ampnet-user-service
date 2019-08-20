@@ -3,14 +3,18 @@ package com.ampnet.userservice.controller
 import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.config.auth.TokenProvider
 import com.ampnet.userservice.config.auth.UserPrincipal
+import com.ampnet.userservice.controller.pojo.request.ChangePasswordTokenRequest
+import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
 import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
 import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.SocialException
+import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.RefreshToken
 import com.ampnet.userservice.persistence.model.User
+import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.RefreshTokenRepository
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.SocialService
@@ -41,10 +45,13 @@ class AuthenticationControllerTest : ControllerTestBase() {
     @Autowired
     private lateinit var refreshTokenRepository: RefreshTokenRepository
     @Autowired
+    private lateinit var forgotPasswordTokenRepository: ForgotPasswordTokenRepository
+    @Autowired
     private lateinit var applicationProperties: ApplicationProperties
 
     private val tokenPath = "/token"
     private val tokenRefreshPath = "/token/refresh"
+    private val forgotPasswordPath = "/forgot-password"
     private val regularTestUser = RegularTestUser()
     private val facebookTestUser = FacebookTestUser()
     private val googleTestUser = GoogleTestUser()
@@ -320,9 +327,10 @@ class AuthenticationControllerTest : ControllerTestBase() {
 
         verify("User can get access token using refresh token") {
             val request = RefreshTokenRequest(testContext.refreshToken.token)
-            val result = mockMvc.perform(post(tokenRefreshPath)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+            val result = mockMvc.perform(
+                post(tokenRefreshPath)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk)
                 .andReturn()
 
@@ -344,9 +352,10 @@ class AuthenticationControllerTest : ControllerTestBase() {
 
         verify("User will get bad request response") {
             val request = RefreshTokenRequest(testContext.refreshToken.token)
-            mockMvc.perform(post(tokenRefreshPath)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(
+                post(tokenRefreshPath)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest)
         }
     }
@@ -355,10 +364,69 @@ class AuthenticationControllerTest : ControllerTestBase() {
     fun mustNotBeAbleToGetAccessTokenWithNonExistingRefreshToken() {
         verify("User will get bad request response") {
             val request = RefreshTokenRequest("non-existing-refresh-token")
-            mockMvc.perform(post(tokenRefreshPath)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(
+                post(tokenRefreshPath)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest)
+        }
+    }
+
+    @Test
+    fun mustBeAbleToGenerateForgotPasswordToken() {
+        suppose("There are no forgot password tokens") {
+            databaseCleanerService.deleteAllForgotPasswordTokens()
+        }
+        suppose("User is exists") {
+            testContext.user = createUser(regularTestUser.email, regularTestUser.authMethod)
+        }
+
+        verify("User can generate forgot password token") {
+            val request = MailCheckRequest(regularTestUser.email)
+            mockMvc.perform(
+                post("$forgotPasswordPath/token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk)
+        }
+        verify("Forgot password token is created") {
+            val forgotTokens = forgotPasswordTokenRepository.findAll()
+            assertThat(forgotTokens).hasSize(1)
+            testContext.forgotToken = forgotTokens.first()
+            assertThat(testContext.forgotToken.user).isEqualTo(testContext.user)
+        }
+        verify("Reset password mail is sent") {
+            Mockito.verify(mailService, Mockito.times(1))
+                .sendResetPasswordMail(regularTestUser.email, testContext.forgotToken.token.toString())
+        }
+    }
+
+    @Test
+    fun mustBeAbleToChangePasswordUsingToken() {
+        suppose("User generated forgot password token") {
+            databaseCleanerService.deleteAllForgotPasswordTokens()
+            testContext.user = createUser(regularTestUser.email, regularTestUser.authMethod)
+            val forgotToken = ForgotPasswordToken(0, testContext.user, UUID.randomUUID(), ZonedDateTime.now())
+            testContext.forgotToken = forgotPasswordTokenRepository.save(forgotToken)
+        }
+
+        verify("User can change password using forgot password token") {
+            testContext.password = "new-password"
+            val request = ChangePasswordTokenRequest(testContext.password, testContext.forgotToken.token)
+            mockMvc.perform(
+                post(forgotPasswordPath)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk)
+        }
+        verify("User password is updated") {
+            val optionalUser = userRepository.findById(testContext.user.uuid)
+            assertThat(optionalUser).isPresent
+            assert(passwordEncoder.matches(testContext.password, optionalUser.get().password))
+        }
+        verify("Forgot password token is deleted") {
+            val forgotTokens = forgotPasswordTokenRepository.findAll()
+            assertThat(forgotTokens).hasSize(0)
         }
     }
 
@@ -405,7 +473,9 @@ class AuthenticationControllerTest : ControllerTestBase() {
     private class TestContext {
         lateinit var refreshToken: RefreshToken
         lateinit var tokenResponse: AccessRefreshTokenResponse
+        lateinit var forgotToken: ForgotPasswordToken
         lateinit var user: User
+        lateinit var password: String
     }
 
     private class RegularTestUser {

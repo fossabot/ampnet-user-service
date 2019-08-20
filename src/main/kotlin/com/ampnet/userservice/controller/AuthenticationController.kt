@@ -1,10 +1,13 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.userservice.controller.pojo.request.ChangePasswordTokenRequest
+import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
 import com.ampnet.userservice.controller.pojo.request.TokenRequest
 import com.ampnet.userservice.controller.pojo.request.TokenRequestSocialInfo
 import com.ampnet.userservice.controller.pojo.request.TokenRequestUserInfo
 import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
+import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.exception.InvalidLoginMethodException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.enums.AuthMethod
@@ -76,6 +79,24 @@ class AuthenticationController(
             logger.info { ex.message }
             ResponseEntity.badRequest().build()
         }
+    }
+
+    @PostMapping("/forgot-password/token")
+    fun generateForgotPasswordToken(@RequestBody request: MailCheckRequest): ResponseEntity<Unit> {
+        logger.info { "Received request to generate forgot password token for email: ${request.email}" }
+        val generated = userService.generateForgotPasswordToken(request.email)
+        return if (generated) {
+            ResponseEntity.ok().build()
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    fun changePasswordWithToken(@RequestBody request: ChangePasswordTokenRequest): ResponseEntity<UserResponse> {
+        logger.info { "Received request for forgot password, token = ${request.token}" }
+        val user = userService.changePasswordWithToken(request.token, request.newPassword)
+        return ResponseEntity.ok(UserResponse(user))
     }
 
     @PostMapping("/logout")

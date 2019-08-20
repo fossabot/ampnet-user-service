@@ -11,4 +11,6 @@ interface UserService {
     fun confirmEmail(token: UUID): User?
     fun resendConfirmationMail(user: User)
     fun changePassword(user: User, oldPassword: String, newPassword: String): User
+    fun changePasswordWithToken(token: UUID, newPassword: String): User
+    fun generateForgotPasswordToken(email: String): Boolean
 }

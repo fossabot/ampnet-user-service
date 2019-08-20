@@ -20,16 +20,21 @@ class DatabaseCleanerService(val em: EntityManager) {
 
     @Transactional
     fun deleteAllMailTokens() {
-        em.createNativeQuery("TRUNCATE mail_token CASCADE").executeUpdate()
+        em.createNativeQuery("DELETE FROM mail_token").executeUpdate()
     }
 
     @Transactional
     fun deleteAllRefreshTokens() {
-        em.createNativeQuery("TRUNCATE refresh_token CASCADE").executeUpdate()
+        em.createNativeQuery("DELETE FROM refresh_token").executeUpdate()
     }
 
     @Transactional
     fun deleteAllBankAccounts() {
-        em.createNativeQuery("TRUNCATE bank_account").executeUpdate()
+        em.createNativeQuery("DELETE FROM bank_account").executeUpdate()
+    }
+
+    @Transactional
+    fun deleteAllForgotPasswordTokens() {
+        em.createNativeQuery("DELETE FROM forgot_password_token").executeUpdate()
     }
 }

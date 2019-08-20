@@ -7,6 +7,7 @@ import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.model.UserInfo
+import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
@@ -40,6 +41,8 @@ abstract class JpaServiceTestBase : TestBase() {
     protected lateinit var userRepository: UserRepository
     @Autowired
     protected lateinit var mailTokenRepository: MailTokenRepository
+    @Autowired
+    protected lateinit var forgotPasswordTokenRepository: ForgotPasswordTokenRepository
     @Autowired
     protected lateinit var userInfoRepository: UserInfoRepository
     @Autowired
