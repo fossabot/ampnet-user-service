@@ -39,6 +39,7 @@ import java.util.UUID
 abstract class ControllerTestBase : TestBase() {
 
     protected val defaultEmail = "user@email.com"
+    protected val defaultUuid = UUID.fromString("8a733721-9bb3-48b1-90b9-6463ac1493eb")
 
     @Autowired
     protected lateinit var objectMapper: ObjectMapper

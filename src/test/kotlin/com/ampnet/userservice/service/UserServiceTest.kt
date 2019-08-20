@@ -3,12 +3,15 @@ package com.ampnet.userservice.service
 import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.config.JsonConfig
 import com.ampnet.userservice.enums.AuthMethod
+import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.impl.UserServiceImpl
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import org.springframework.context.annotation.Import
 
@@ -87,6 +90,37 @@ class UserServiceTest : JpaServiceTestBase() {
         }
     }
 
+    @Test
+    fun mustThrowExceptionForUpdatingPasswordWithInvalidAuthMethod() {
+        suppose("User is created with Google auth method") {
+            testContext.user = createUser("user@dsm.cl", authMethod = AuthMethod.GOOGLE)
+        }
+
+        verify("Service will throw exception if user with Google auth method tries to change password") {
+            val service = createUserService(testContext.applicationProperties)
+            val exception = assertThrows<InvalidRequestException> {
+                service.changePassword(testContext.user, "oldPassword", "newPassword")
+            }
+            assertThat(exception.errorCode).isEqualTo(ErrorCode.AUTH_INVALID_LOGIN_METHOD)
+        }
+    }
+
+    @Test
+    fun mustThrowExceptionForUpdatingPasswordWithInvalidOldPassword() {
+        suppose("User is created") {
+            testContext.password = "oldPassword"
+            testContext.user = createUser("user@dsm.cl", password = testContext.password)
+        }
+
+        verify("Service will throw exception if user with Google auth method tries to change password") {
+            val service = createUserService(testContext.applicationProperties)
+            val exception = assertThrows<InvalidRequestException> {
+                service.changePassword(testContext.user, testContext.password, "newPassword")
+            }
+            assertThat(exception.errorCode).isEqualTo(ErrorCode.USER_DIFFERENT_PASSWORD)
+        }
+    }
+
     private fun createUserService(properties: ApplicationProperties): UserService {
         return UserServiceImpl(userRepository, roleRepository, userInfoRepository, mailTokenRepository, mailService,
             passwordEncoder, properties)
@@ -96,5 +130,6 @@ class UserServiceTest : JpaServiceTestBase() {
         lateinit var applicationProperties: ApplicationProperties
         lateinit var email: String
         lateinit var user: User
+        lateinit var password: String
     }
 }

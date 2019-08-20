@@ -94,6 +94,18 @@ class UserServiceImpl(
         mailService.sendConfirmationMail(user.email, mailToken.token.toString())
     }
 
+    @Transactional
+    override fun changePassword(user: User, oldPassword: String, newPassword: String): User {
+        if (user.authMethod != AuthMethod.EMAIL) {
+            throw InvalidRequestException(ErrorCode.AUTH_INVALID_LOGIN_METHOD, "Cannot change password")
+        }
+        if (passwordEncoder.matches(oldPassword, user.password).not()) {
+            throw InvalidRequestException(ErrorCode.USER_DIFFERENT_PASSWORD, "Invalid old password")
+        }
+        user.password = passwordEncoder.encode(newPassword)
+        return userRepository.save(user)
+    }
+
     private fun createUserFromRequest(request: CreateUserServiceRequest): User {
         val userInfo = userInfoRepository.findByWebSessionUuid(request.webSessionUuid).orElseThrow {
             throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,

@@ -188,11 +188,16 @@ include::{snippets}/AuthenticationControllerTest/signInWithNonExistingUserShould
 Collection of endpoints for managing users
 
 === Get own profile
-
 .Request
 include::{snippets}/UserControllerTest/mustBeAbleToGetOwnProfile/http-request.adoc[]
 .Response
 include::{snippets}/UserControllerTest/mustBeAbleToGetOwnProfile/http-response.adoc[]
+
+=== Change password
+.Request
+include::{snippets}/UserControllerTest/mustBeAbleToChangeOwnPassword/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustBeAbleToChangeOwnPassword/http-response.adoc[]
 
 === Bank account
 Collection of endpoints for user bank account

@@ -47,10 +47,17 @@ abstract class JpaServiceTestBase : TestBase() {
 
     protected val mailService: MailService = Mockito.mock(MailService::class.java)
 
-    protected fun createUser(email: String, firstName: String = "first", lastName: String = "last"): User {
+    protected fun createUser(
+        email: String,
+        firstName: String = "first",
+        lastName: String = "last",
+        password: String? = null,
+        authMethod: AuthMethod = AuthMethod.EMAIL
+    ): User {
         val userInfo = createUserInfo(email, firstName, lastName)
         val user = User::class.java.getConstructor().newInstance().apply {
-            authMethod = AuthMethod.EMAIL
+            this.authMethod = authMethod
+            this.password = password
             createdAt = ZonedDateTime.now()
             this.email = email
             enabled = true
