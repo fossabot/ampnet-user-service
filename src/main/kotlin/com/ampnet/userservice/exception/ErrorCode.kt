@@ -14,9 +14,11 @@ enum class ErrorCode(val categoryCode: String, var specificCode: String, var mes
 
     // Authentication: 02
     AUTH_INVALID_LOGIN_METHOD("02", "01", "Invalid login method"),
+    AUTH_FORGOT_TOKEN_MISSING("02", "02", "Missing forgot password token"),
+    AUTH_FORGOT_TOKEN_EXPIRED("02", "03", "Forgot password token expired"),
 
     // Users: 03
     USER_MISSING("03", "01", "Non existing user"),
     USER_BANK_INVALID("03", "02", "Invalid bank code"),
-    USER_IBAN_INVALID("03", "03", "Invalid IBAN")
+    USER_DIFFERENT_PASSWORD("03", "03", "Different password")
 }

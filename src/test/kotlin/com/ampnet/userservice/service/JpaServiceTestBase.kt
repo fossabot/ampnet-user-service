@@ -7,6 +7,7 @@ import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.model.UserInfo
+import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
@@ -41,16 +42,25 @@ abstract class JpaServiceTestBase : TestBase() {
     @Autowired
     protected lateinit var mailTokenRepository: MailTokenRepository
     @Autowired
+    protected lateinit var forgotPasswordTokenRepository: ForgotPasswordTokenRepository
+    @Autowired
     protected lateinit var userInfoRepository: UserInfoRepository
     @Autowired
     protected lateinit var objectMapper: ObjectMapper
 
     protected val mailService: MailService = Mockito.mock(MailService::class.java)
 
-    protected fun createUser(email: String, firstName: String = "first", lastName: String = "last"): User {
+    protected fun createUser(
+        email: String,
+        firstName: String = "first",
+        lastName: String = "last",
+        password: String? = null,
+        authMethod: AuthMethod = AuthMethod.EMAIL
+    ): User {
         val userInfo = createUserInfo(email, firstName, lastName)
         val user = User::class.java.getConstructor().newInstance().apply {
-            authMethod = AuthMethod.EMAIL
+            this.authMethod = authMethod
+            this.password = password
             createdAt = ZonedDateTime.now()
             this.email = email
             enabled = true

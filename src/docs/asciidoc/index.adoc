@@ -154,6 +154,20 @@ include::{snippets}/AuthenticationControllerTest/mustBeAbleToGetAccessTokenWithR
 .Response
 include::{snippets}/AuthenticationControllerTest/mustBeAbleToGetAccessTokenWithRefreshToken/http-response.adoc[]
 
+=== Forgot password
+
+==== Generate token - send mail
+.Request
+include::{snippets}/AuthenticationControllerTest/mustBeAbleToGenerateForgotPasswordToken/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/mustBeAbleToGenerateForgotPasswordToken/http-response.adoc[]
+
+==== Change password using token
+.Request
+include::{snippets}/AuthenticationControllerTest/mustBeAbleToChangePasswordUsingToken/http-request.adoc[]
+.Response
+include::{snippets}/AuthenticationControllerTest/mustBeAbleToChangePasswordUsingToken/http-response.adoc[]
+
 === Logout
 .Request
 include::{snippets}/AuthenticationControllerTest/mustBeAbleToLogoutUser/http-request.adoc[]
@@ -188,11 +202,16 @@ include::{snippets}/AuthenticationControllerTest/signInWithNonExistingUserShould
 Collection of endpoints for managing users
 
 === Get own profile
-
 .Request
 include::{snippets}/UserControllerTest/mustBeAbleToGetOwnProfile/http-request.adoc[]
 .Response
 include::{snippets}/UserControllerTest/mustBeAbleToGetOwnProfile/http-response.adoc[]
+
+=== Change password
+.Request
+include::{snippets}/UserControllerTest/mustBeAbleToChangeOwnPassword/http-request.adoc[]
+.Response
+include::{snippets}/UserControllerTest/mustBeAbleToChangeOwnPassword/http-response.adoc[]
 
 === Bank account
 Collection of endpoints for user bank account

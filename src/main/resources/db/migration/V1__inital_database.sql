@@ -24,9 +24,9 @@ CREATE TABLE user_info (
     last_name VARCHAR NOT NULL,
     citizenship VARCHAR NOT NULL,
     resident BOOLEAN NOT NULL,
-    address_city VARCHAR NOT NULL,
-    address_county VARCHAR NOT NULL,
-    address_street VARCHAR NOT NULL,
+    address_city VARCHAR,
+    address_county VARCHAR,
+    address_street VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     connected BOOLEAN NOT NULL
 );
@@ -41,10 +41,30 @@ CREATE TABLE app_user (
     user_info_id INT REFERENCES user_info(id) NOT NULL
 );
 
--- Mail
+-- Token
 CREATE TABLE mail_token (
     id SERIAL PRIMARY KEY,
     user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
     token UUID NOT NULL,
     created_at TIMESTAMP NOT NULL
+);
+CREATE TABLE refresh_token(
+    id SERIAL PRIMARY KEY,
+    token VARCHAR(128) NOT NULL,
+    user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE TABLE forgot_password_token(
+    id SERIAL PRIMARY KEY,
+    user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
+    token UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE bank_account(
+    id SERIAL PRIMARY KEY,
+    user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
+    iban VARCHAR(64) NOT NULL,
+    bank_code VARCHAR(16) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
