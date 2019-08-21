@@ -289,3 +289,11 @@ Missing privilege: `PWA_PROFILE`
 include::{snippets}/AdminControllerTest/mustNotBeAbleToChangeRoleWithUserRole/http-request.adoc[]
 .Response
 include::{snippets}/AdminControllerTest/mustNotBeAbleToChangeRoleWithUserRole/http-response.adoc[]
+
+=== Create User
+Must have Admin role - privilege: `PrivilegeType.PWA_PROFILE`
+
+.Request
+include::{snippets}/AdminControllerTest/mustBeAbleToCreateAdminUser/http-request.adoc[]
+.Response
+include::{snippets}/AdminControllerTest/mustBeAbleToCreateAdminUser/http-response.adoc[]

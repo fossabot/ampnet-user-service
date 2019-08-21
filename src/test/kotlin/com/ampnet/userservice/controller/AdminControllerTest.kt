@@ -1,5 +1,6 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.userservice.controller.pojo.request.CreateAdminUserRequest
 import com.ampnet.userservice.controller.pojo.request.RoleRequest
 import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.controller.pojo.response.UsersListResponse
@@ -26,6 +27,34 @@ class AdminControllerTest : ControllerTestBase() {
     @BeforeEach
     fun initTestData() {
         testContext = TestContext()
+    }
+
+    @Test
+    @WithMockCrowdfoundUser(privileges = [PrivilegeType.PWA_PROFILE])
+    fun mustBeAbleToCreateAdminUser() {
+        suppose("There are no users in database") {
+            databaseCleanerService.deleteAllUsers()
+        }
+
+        verify("Admin can create admin user") {
+            val roleType = UserRoleType.ADMIN
+            val request = CreateAdminUserRequest(testContext.email, "first", "last", "password", roleType)
+            val result = mockMvc.perform(
+                post(pathUsers)
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andReturn()
+
+            val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
+            assertThat(userResponse.email).isEqualTo(testContext.email)
+            assertThat(userResponse.role).isEqualTo(roleType.name)
+        }
+        verify("Admin user is created") {
+            val optionalUser = userRepository.findByEmail(testContext.email)
+            assertThat(optionalUser).isPresent
+            assertThat(optionalUser.get().role.name).isEqualTo(UserRoleType.ADMIN.name)
+        }
     }
 
     @Test
@@ -131,8 +160,12 @@ class AdminControllerTest : ControllerTestBase() {
 
             val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(userResponse.email).isEqualTo(testContext.user.email)
-            val role = roleRepository.getOne(roleType.id)
-            assertThat(userResponse.role).isEqualTo(role.name)
+            assertThat(userResponse.role).isEqualTo(roleType.name)
+        }
+        verify("User role has admin role") {
+            val optionalUser = userRepository.findById(testContext.user.uuid)
+            assertThat(optionalUser).isPresent
+            assertThat(optionalUser.get().role.name).isEqualTo(UserRoleType.ADMIN.name)
         }
     }
 
