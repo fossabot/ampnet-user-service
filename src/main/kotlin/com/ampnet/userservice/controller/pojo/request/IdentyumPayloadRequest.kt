@@ -35,8 +35,8 @@ data class IdentyumPayloadRequest(
     val tsCreated: String
 ) {
     override fun toString(): String {
-        return "(webSessionUuid=$webSessionUuid, productUuid=$productUuid reportUuid=$reportUuid, " +
-            "reportName=$reportName, version=$version, outputFormat=$outputFormat, payloadFormat=$payloadFormat, " +
-            "processStatus=$processStatus, " + "tsCreated=$tsCreated)"
+        return "IdentyumPayloadRequest(webSessionUuid=$webSessionUuid, productUuid=$productUuid " +
+            "reportUuid=$reportUuid, " + "reportName=$reportName, version=$version, outputFormat=$outputFormat, " +
+            "payloadFormat=$payloadFormat, " + "processStatus=$processStatus, " + "tsCreated=$tsCreated)"
     }
 }

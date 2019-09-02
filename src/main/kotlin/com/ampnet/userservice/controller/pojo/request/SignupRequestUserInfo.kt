@@ -4,5 +4,5 @@ data class SignupRequestUserInfo(
     val email: String,
     val password: String
 ) {
-    override fun toString(): String = "email: $email"
+    override fun toString(): String = "SignupRequestUserInfo(email: $email)"
 }

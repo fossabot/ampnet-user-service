@@ -55,6 +55,7 @@ class UserServiceImpl(
             val mailToken = createMailToken(user)
             mailService.sendConfirmationMail(user.email, mailToken.token.toString())
         }
+        logger.debug { "Created user: ${user.email}" }
         return user
     }
 
@@ -79,6 +80,7 @@ class UserServiceImpl(
             user.enabled = true
 
             mailTokenRepository.delete(mailToken)
+            logger.debug { "Email confirmed for user: ${user.email}" }
             return userRepository.save(user)
         }
         return null
@@ -105,6 +107,7 @@ class UserServiceImpl(
         if (passwordEncoder.matches(oldPassword, user.password).not()) {
             throw InvalidRequestException(ErrorCode.USER_DIFFERENT_PASSWORD, "Invalid old password")
         }
+        logger.info { "Changing password for user: ${user.uuid}" }
         user.password = passwordEncoder.encode(newPassword)
         return userRepository.save(user)
     }
@@ -120,6 +123,7 @@ class UserServiceImpl(
         val user = forgotToken.user
         forgotPasswordTokenRepository.delete(forgotToken)
         user.password = passwordEncoder.encode(newPassword)
+        logger.info { "Changing password using forgot password token for user: ${user.email}" }
         return userRepository.save(user)
     }
 
@@ -129,6 +133,7 @@ class UserServiceImpl(
         if (user.authMethod != AuthMethod.EMAIL) {
             throw InvalidRequestException(ErrorCode.AUTH_INVALID_LOGIN_METHOD, "Cannot change password")
         }
+        logger.info { "Generating forgot password token for user: ${user.email}" }
         val forgotPasswordToken = ForgotPasswordToken(0, user, UUID.randomUUID(), ZonedDateTime.now())
         forgotPasswordTokenRepository.save(forgotPasswordToken)
         mailService.sendResetPasswordMail(user.email, forgotPasswordToken.token.toString())

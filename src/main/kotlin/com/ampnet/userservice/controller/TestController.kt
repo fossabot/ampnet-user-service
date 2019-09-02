@@ -8,6 +8,7 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import mu.KLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,8 +25,11 @@ class TestController(
     private val applicationProperties: ApplicationProperties
 ) {
 
+    companion object : KLogging()
+
     @PostMapping("/test/signup")
     fun createUser(@RequestBody @Valid request: TestUserSignupRequest): ResponseEntity<UserResponse> {
+        logger.info { "Received request to create test user" }
         if (applicationProperties.testUser.enabled.not()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
@@ -34,6 +38,7 @@ class TestController(
         val createUserRequest = CreateUserServiceRequest(
             createUserInfo.webSessionUuid, request.email, request.password, AuthMethod.EMAIL)
         val user = userService.createUser(createUserRequest)
+        logger.info { "Created test user: ${user.email} - ${user.uuid}" }
         return ResponseEntity.ok(UserResponse(user))
     }
 

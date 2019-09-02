@@ -13,6 +13,7 @@ import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.AdminService
+import mu.KLogging
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,6 +27,8 @@ class AdminServiceImpl(
     private val userInfoRepository: UserInfoRepository,
     private val passwordEncoder: PasswordEncoder
 ) : AdminService {
+
+    companion object : KLogging()
 
     private val userRole: Role by lazy { roleRepository.getOne(UserRoleType.USER.id) }
     private val adminRole: Role by lazy { roleRepository.getOne(UserRoleType.ADMIN.id) }
@@ -50,6 +53,7 @@ class AdminServiceImpl(
         if (userRepository.findByEmail(request.email).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS, "Email: ${request.email} already used")
         }
+        logger.info { "Creating Admin user: $request" }
         val userInfo = createAdminUserInfo(request)
         val user = User(
             UUID.randomUUID(),
@@ -69,7 +73,7 @@ class AdminServiceImpl(
         val user = userRepository.findById(userUuid).orElseThrow {
             throw InvalidRequestException(ErrorCode.USER_MISSING, "Missing user with id: $userUuid")
         }
-
+        logger.info { "Changing user role for user: ${user.uuid} to role: $role" }
         user.role = getRole(role)
         return userRepository.save(user)
     }

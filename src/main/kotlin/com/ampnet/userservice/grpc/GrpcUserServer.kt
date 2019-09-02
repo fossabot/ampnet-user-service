@@ -30,6 +30,8 @@ class GrpcUserServer(private val userRepository: UserRepository) : UserServiceGr
         val users = userRepository.findAllById(uuids)
 
         val usersResponse = users.map { buildUserResponseFromUser(it) }
+
+        logger.debug { "UsersResponse: $usersResponse" }
         val response = UsersResponse.newBuilder()
             .addAllUsers(usersResponse)
             .build()

@@ -78,6 +78,7 @@ class IdentyumServiceImpl(
             val identyumUser: IdentyumUserModel = objectMapper.readValue(decryptedData)
             val userInfo = createUserInfoFromIdentyumUser(identyumUser)
             userInfo.webSessionUuid = request.webSessionUuid
+            logger.debug { "Creating UserInfo: $userInfo" }
             return userInfoRepository.save(userInfo)
         } catch (ex: JsonProcessingException) {
             val trimmedDecryptedData = removeDocumentImageData(decryptedData)

@@ -26,7 +26,6 @@ class BankAccountController(
         logger.debug { "Received request to add bank account for user: ${userPrincipal.uuid}" }
         val accounts = bankAccountService.findBankAccounts(userPrincipal.uuid).map { BankAccountResponse(it) }
         val response = BankAccountListResponse(accounts)
-        logger.info { "Response = $response" }
         return ResponseEntity.ok(response)
     }
 

@@ -6,4 +6,8 @@ data class TokenRequestUserInfo(
     @EmailConstraint
     val email: String,
     val password: String
-)
+) {
+    override fun toString(): String {
+        return "TokenRequestUserInfo(email: $email)"
+    }
+}
