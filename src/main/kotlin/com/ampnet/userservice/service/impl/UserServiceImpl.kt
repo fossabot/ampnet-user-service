@@ -1,10 +1,10 @@
 package com.ampnet.userservice.service.impl
 
 import com.ampnet.userservice.config.ApplicationProperties
-import com.ampnet.userservice.enums.UserRoleType
-import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.enums.AuthMethod
+import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.ForgotPasswordToken
@@ -19,12 +19,12 @@ import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.MailService
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import java.time.ZonedDateTime
+import java.util.UUID
 import mu.KLogging
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
-import java.util.UUID
 
 @Service
 class UserServiceImpl(

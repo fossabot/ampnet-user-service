@@ -1,8 +1,8 @@
 package com.ampnet.userservice.service.impl
 
 import com.ampnet.mailservice.proto.Empty
-import com.ampnet.mailservice.proto.MailServiceGrpc
 import com.ampnet.mailservice.proto.MailConfirmationRequest
+import com.ampnet.mailservice.proto.MailServiceGrpc
 import com.ampnet.mailservice.proto.ResetPasswordRequest
 import com.ampnet.userservice.service.MailService
 import io.grpc.stub.StreamObserver
