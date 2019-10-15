@@ -2,17 +2,17 @@ import com.google.protobuf.gradle.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.3.41"
+    val kotlinVersion = "1.3.50"
     kotlin("plugin.jpa") version kotlinVersion
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
 
-    id("org.springframework.boot") version "2.1.7.RELEASE"
+    id("org.springframework.boot") version "2.1.9.RELEASE"
     id("io.spring.dependency-management") version "1.0.8.RELEASE"
-    id("com.google.cloud.tools.jib") version "1.5.0"
-    id("org.jlleitschuh.gradle.ktlint") version "8.2.0"
-    id("io.gitlab.arturbosch.detekt").version("1.0.0")
-    id("org.asciidoctor.convert") version "2.3.0"
+    id("com.google.cloud.tools.jib") version "1.6.1"
+    id("org.jlleitschuh.gradle.ktlint") version "9.0.0"
+    id("io.gitlab.arturbosch.detekt").version("1.1.1")
+    id("org.asciidoctor.convert") version "1.5.8"
     id("com.google.protobuf") version "0.8.10"
     idea
     jacoco
@@ -47,9 +47,9 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     implementation("io.github.microutils:kotlin-logging:1.7.6")
-    implementation("net.logstash.logback:logstash-logback-encoder:5.3")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.1.5")
-    implementation("net.devh:grpc-spring-boot-starter:2.5.0.RELEASE")
+    implementation("net.logstash.logback:logstash-logback-encoder:6.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.3.0")
+    implementation("net.devh:grpc-spring-boot-starter:2.5.1.RELEASE")
     implementation("org.iban4j:iban4j:3.2.1")
     implementation("com.github.AMPnet:jwt:0.0.1")
 
@@ -80,7 +80,7 @@ protobuf {
     }
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.20.0"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.24.0"
         }
     }
     generateProtoTasks {
