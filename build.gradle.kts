@@ -19,16 +19,16 @@ plugins {
 }
 
 group = "com.ampnet"
-version = "0.4.2"
+version = "0.4.3"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
     jcenter()
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
-    val jjwtVersion = "0.10.7"
     val junitVersion = "5.3.2"
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -46,14 +46,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     runtimeOnly("org.postgresql:postgresql")
 
-    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
-    implementation("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
     implementation("io.github.microutils:kotlin-logging:1.7.6")
     implementation("net.logstash.logback:logstash-logback-encoder:5.3")
     implementation("io.micrometer:micrometer-registry-prometheus:1.1.5")
     implementation("net.devh:grpc-spring-boot-starter:2.5.0.RELEASE")
     implementation("org.iban4j:iban4j:3.2.1")
+    implementation("com.github.AMPnet:jwt:0.0.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude("junit")

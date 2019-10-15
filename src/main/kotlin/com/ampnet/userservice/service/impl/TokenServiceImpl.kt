@@ -1,9 +1,9 @@
 package com.ampnet.userservice.service.impl
 
+import com.ampnet.core.jwt.JwtTokenUtils
+import com.ampnet.core.jwt.UserPrincipal
+import com.ampnet.core.jwt.exception.TokenException
 import com.ampnet.userservice.config.ApplicationProperties
-import com.ampnet.userservice.config.auth.TokenProvider
-import com.ampnet.userservice.config.auth.UserPrincipal
-import com.ampnet.userservice.exception.TokenException
 import com.ampnet.userservice.persistence.model.RefreshToken
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.RefreshTokenRepository
@@ -17,8 +17,7 @@ import java.util.UUID
 @Service
 class TokenServiceImpl(
     private val applicationProperties: ApplicationProperties,
-    private val refreshTokenRepository: RefreshTokenRepository,
-    private val jwtTokenProvider: TokenProvider
+    private val refreshTokenRepository: RefreshTokenRepository
 ) : TokenService {
 
     private companion object {
@@ -30,7 +29,11 @@ class TokenServiceImpl(
     override fun generateAccessAndRefreshForUser(user: User): AccessAndRefreshToken {
         val token = getRandomToken()
         val refreshToken = refreshTokenRepository.save(RefreshToken(0, user, token, ZonedDateTime.now()))
-        val accessToken = jwtTokenProvider.generateToken(UserPrincipal(user))
+        val accessToken = JwtTokenUtils.encodeToken(
+            generateUserPrincipalFromUser(user),
+            applicationProperties.jwt.signingKey,
+            applicationProperties.jwt.accessTokenValidity
+        )
         return AccessAndRefreshToken(
             accessToken,
             applicationProperties.jwt.accessTokenValidity,
@@ -50,7 +53,11 @@ class TokenServiceImpl(
             refreshTokenRepository.delete(refreshToken)
             throw TokenException("Refresh token expired")
         }
-        val accessToken = jwtTokenProvider.generateToken(UserPrincipal(refreshToken.user))
+        val accessToken = JwtTokenUtils.encodeToken(
+            generateUserPrincipalFromUser(refreshToken.user),
+            applicationProperties.jwt.signingKey,
+            applicationProperties.jwt.accessTokenValidity
+        )
         return AccessAndRefreshToken(
             accessToken,
             applicationProperties.jwt.accessTokenValidity,
@@ -70,4 +77,12 @@ class TokenServiceImpl(
         .map { kotlin.random.Random.nextInt(0, charPool.size) }
         .map(charPool::get)
         .joinToString("")
+
+    private fun generateUserPrincipalFromUser(user: User) = UserPrincipal(
+        user.uuid,
+        user.email,
+        user.getFullName(),
+        user.getAuthorities().asSequence().map { it.authority }.toSet(),
+        user.enabled
+    )
 }

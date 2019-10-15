@@ -1,6 +1,6 @@
 package com.ampnet.userservice.security
 
-import com.ampnet.userservice.config.auth.UserPrincipal
+import com.ampnet.core.jwt.UserPrincipal
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext

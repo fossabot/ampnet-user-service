@@ -1,8 +1,8 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.core.jwt.JwtTokenUtils
+import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.userservice.config.ApplicationProperties
-import com.ampnet.userservice.config.auth.TokenProvider
-import com.ampnet.userservice.config.auth.UserPrincipal
 import com.ampnet.userservice.controller.pojo.request.ChangePasswordTokenRequest
 import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
@@ -38,8 +38,6 @@ class AuthenticationControllerTest : ControllerTestBase() {
 
     @Autowired
     private lateinit var userService: UserService
-    @Autowired
-    private lateinit var tokenProvider: TokenProvider
     @Autowired
     private lateinit var socialService: SocialService
     @Autowired
@@ -460,8 +458,14 @@ class AuthenticationControllerTest : ControllerTestBase() {
     }
 
     private fun verifyTokenForUserData(token: String) {
-        val tokenPrincipal = tokenProvider.parseToken(token)
-        val storedUserPrincipal = UserPrincipal(testContext.user)
+        val tokenPrincipal = JwtTokenUtils.decodeToken(token, applicationProperties.jwt.signingKey)
+        val storedUserPrincipal = UserPrincipal(
+            testContext.user.uuid,
+            testContext.user.email,
+            testContext.user.getFullName(),
+            testContext.user.getAuthorities().asSequence().map { it.authority }.toSet(),
+            testContext.user.enabled
+        )
         assertThat(tokenPrincipal).isEqualTo(storedUserPrincipal)
     }
 

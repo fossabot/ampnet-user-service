@@ -1,5 +1,6 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.core.jwt.exception.TokenException
 import com.ampnet.userservice.controller.pojo.request.ChangePasswordTokenRequest
 import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
@@ -12,7 +13,6 @@ import com.ampnet.userservice.exception.InvalidLoginMethodException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
-import com.ampnet.userservice.exception.TokenException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.TokenService

@@ -1,8 +1,8 @@
 package com.ampnet.userservice.config
 
-import com.ampnet.userservice.config.auth.JwtAuthenticationEntryPoint
-import com.ampnet.userservice.config.auth.JwtAuthenticationFilter
-import com.ampnet.userservice.config.auth.JwtAuthenticationProvider
+import com.ampnet.core.jwt.UnauthorizedEntryPoint
+import com.ampnet.core.jwt.filter.JwtAuthenticationFilter
+import com.ampnet.core.jwt.provider.JwtAuthenticationProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,10 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurityConfig(
-    val unauthorizedHandler: JwtAuthenticationEntryPoint,
-    val authenticationTokenFilter: JwtAuthenticationFilter
-) : WebSecurityConfigurerAdapter() {
+class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
     @Override
     @Bean
@@ -37,8 +34,9 @@ class WebSecurityConfig(
     @Autowired
     fun globalUserDetails(
         authBuilder: AuthenticationManagerBuilder,
-        authenticationProvider: JwtAuthenticationProvider
+        applicationProperties: ApplicationProperties
     ) {
+        val authenticationProvider = JwtAuthenticationProvider(applicationProperties.jwt.signingKey)
         authBuilder.authenticationProvider(authenticationProvider)
     }
 
@@ -65,6 +63,8 @@ class WebSecurityConfig(
     }
 
     override fun configure(http: HttpSecurity) {
+        val unauthorizedHandler = UnauthorizedEntryPoint()
+        val authenticationTokenFilter = JwtAuthenticationFilter()
         http.cors().and().csrf().disable()
             .logout().disable()
             .authorizeRequests()
