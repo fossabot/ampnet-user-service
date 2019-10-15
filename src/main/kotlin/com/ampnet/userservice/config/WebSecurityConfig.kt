@@ -2,6 +2,7 @@ package com.ampnet.userservice.config
 
 import com.ampnet.core.jwt.UnauthorizedEntryPoint
 import com.ampnet.core.jwt.filter.JwtAuthenticationFilter
+import com.ampnet.core.jwt.filter.ProfileFilter
 import com.ampnet.core.jwt.provider.JwtAuthenticationProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -65,6 +66,8 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         val unauthorizedHandler = UnauthorizedEntryPoint()
         val authenticationTokenFilter = JwtAuthenticationFilter()
+        val profileFilter = ProfileFilter()
+
         http.cors().and().csrf().disable()
             .logout().disable()
             .authorizeRequests()
@@ -83,5 +86,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         http
             .addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterAfter(profileFilter, JwtAuthenticationFilter::class.java)
     }
 }
