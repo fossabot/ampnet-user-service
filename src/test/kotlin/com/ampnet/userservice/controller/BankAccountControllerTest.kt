@@ -52,7 +52,7 @@ class BankAccountControllerTest : ControllerTestBase() {
         verify("User can get a list of bank accounts") {
             val result = mockMvc.perform(get(bankAccountPath))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val bankAccounts: BankAccountListResponse = objectMapper.readValue(result.response.contentAsString)
@@ -73,7 +73,7 @@ class BankAccountControllerTest : ControllerTestBase() {
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val bankAccount: BankAccountResponse = objectMapper.readValue(result.response.contentAsString)

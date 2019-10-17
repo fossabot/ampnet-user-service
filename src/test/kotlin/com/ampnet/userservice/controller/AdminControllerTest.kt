@@ -68,7 +68,7 @@ class AdminControllerTest : ControllerTestBase() {
         verify("The controller returns a list of users") {
             val result = mockMvc.perform(get(pathUsers))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val listResponse: UsersListResponse = objectMapper.readValue(result.response.contentAsString)
@@ -184,7 +184,7 @@ class AdminControllerTest : ControllerTestBase() {
         verify("Admin can get a list of only admin users") {
             val result = mockMvc.perform(get("$pathUsers/admin"))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val listResponse: UsersListResponse = objectMapper.readValue(result.response.contentAsString)

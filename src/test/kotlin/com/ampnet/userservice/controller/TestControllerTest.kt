@@ -33,7 +33,7 @@ class TestControllerTest : ControllerTestBase() {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val user: UserResponse = objectMapper.readValue(result.response.contentAsString)

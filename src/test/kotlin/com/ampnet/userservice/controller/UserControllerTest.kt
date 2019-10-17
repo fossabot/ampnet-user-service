@@ -40,7 +40,7 @@ class UserControllerTest : ControllerTestBase() {
         verify("The controller must return user data") {
             val result = mockMvc.perform(get(pathMe))
                     .andExpect(status().isOk)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(userResponse.email).isEqualTo(testContext.email)
@@ -77,9 +77,9 @@ class UserControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                 post("$pathMe/password")
                     .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
             val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(userResponse.uuid).isEqualTo(defaultUuid.toString())
