@@ -54,7 +54,7 @@ class UserServiceTest : JpaServiceTestBase() {
         }
 
         verify("Created user account is connected and enabled") {
-            assertThat(testContext.user.userInfo.connected).isTrue()
+            assertThat(testContext.user.userInfo?.connected).isTrue()
             assertThat(testContext.user.enabled).isTrue()
         }
         verify("Sending mail confirmation was not called") {
@@ -83,7 +83,7 @@ class UserServiceTest : JpaServiceTestBase() {
         }
 
         verify("Created user account is connected and disabled") {
-            assertThat(testContext.user.userInfo.connected).isTrue()
+            assertThat(testContext.user.userInfo?.connected).isTrue()
             assertThat(testContext.user.enabled).isFalse()
         }
         verify("Sending mail confirmation was called") {

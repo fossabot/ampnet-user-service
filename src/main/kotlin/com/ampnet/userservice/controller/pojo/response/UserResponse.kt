@@ -14,8 +14,8 @@ data class UserResponse(
     constructor(user: User) : this(
         user.uuid.toString(),
         user.email,
-        user.userInfo.firstName,
-        user.userInfo.lastName,
+        user.firstName,
+        user.lastName,
         user.role.name,
         user.enabled
     )

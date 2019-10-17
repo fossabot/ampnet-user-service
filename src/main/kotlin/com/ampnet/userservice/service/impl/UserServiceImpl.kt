@@ -145,20 +145,23 @@ class UserServiceImpl(
             throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
                 "Missing UserInfo with Identyum webSessionUuid: ${request.webSessionUuid}")
         }
-        val user = User::class.java.getDeclaredConstructor().newInstance().apply {
-            this.uuid = UUID.randomUUID()
-            this.email = request.email
-            this.authMethod = request.authMethod
-            this.createdAt = ZonedDateTime.now()
-            this.role = userRole
-            this.userInfo = userInfo
-            this.userInfo.connected = true
-            this.enabled = true
-        }
+        val user = User(
+            UUID.randomUUID(),
+            userInfo.firstName,
+            userInfo.lastName,
+            request.email,
+            null,
+            request.authMethod,
+            userInfo,
+            userRole,
+            ZonedDateTime.now(),
+            true
+        )
         if (request.authMethod == AuthMethod.EMAIL) {
             user.enabled = applicationProperties.mail.confirmationNeeded.not()
             user.password = passwordEncoder.encode(request.password.orEmpty())
         }
+        userInfo.connected = true
         return user
     }
 

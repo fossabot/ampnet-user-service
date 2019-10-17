@@ -54,13 +54,14 @@ class AdminServiceImpl(
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS, "Email: ${request.email} already used")
         }
         logger.info { "Creating Admin user: $request" }
-        val userInfo = createAdminUserInfo(request)
         val user = User(
             UUID.randomUUID(),
+            request.firstName,
+            request.lastName,
             request.email,
             passwordEncoder.encode(request.password),
             AuthMethod.EMAIL,
-            userInfo,
+            null,
             getRole(request.role),
             ZonedDateTime.now(),
             true

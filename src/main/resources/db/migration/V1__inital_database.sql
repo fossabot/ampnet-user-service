@@ -32,13 +32,15 @@ CREATE TABLE user_info (
 );
 CREATE TABLE app_user (
     uuid UUID PRIMARY KEY,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
     password VARCHAR(60),
     role_id INT REFERENCES role(id) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     auth_method VARCHAR(8) NOT NULL,
     enabled BOOLEAN NOT NULL,
-    user_info_id INT REFERENCES user_info(id) NOT NULL
+    user_info_id INT REFERENCES user_info(id)
 );
 
 -- Token

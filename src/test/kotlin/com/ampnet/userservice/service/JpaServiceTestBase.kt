@@ -57,18 +57,18 @@ abstract class JpaServiceTestBase : TestBase() {
         password: String? = null,
         authMethod: AuthMethod = AuthMethod.EMAIL
     ): User {
-        val userInfo = createUserInfo(email, firstName, lastName)
-        val user = User::class.java.getConstructor().newInstance().apply {
-            this.authMethod = authMethod
-            this.password = password
-            createdAt = ZonedDateTime.now()
-            this.email = email
-            enabled = true
-            role = roleRepository.getOne(UserRoleType.USER.id)
-            this.userInfo = userInfo
-            this.userInfo.connected = true
-            uuid = UUID.randomUUID()
-        }
+        val user = User(
+            UUID.randomUUID(),
+            firstName,
+            lastName,
+            email,
+            password,
+            authMethod,
+            null,
+            roleRepository.getOne(UserRoleType.USER.id),
+            ZonedDateTime.now(),
+            true
+        )
         return userRepository.save(user)
     }
 

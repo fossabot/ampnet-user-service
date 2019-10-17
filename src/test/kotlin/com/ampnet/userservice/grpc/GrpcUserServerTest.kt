@@ -2,8 +2,8 @@ package com.ampnet.userservice.grpc
 
 import com.ampnet.userservice.TestBase
 import com.ampnet.userservice.enums.AuthMethod
+import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.proto.GetUsersRequest
 import com.ampnet.userservice.proto.UsersResponse
@@ -81,36 +81,18 @@ class GrpcUserServerTest : TestBase() {
     }
 
     private fun createUser(uuid: UUID): User =
-        User::class.java.getConstructor().newInstance().apply {
-            authMethod = AuthMethod.EMAIL
-            createdAt = ZonedDateTime.now()
-            email = "email@mail.com"
-            enabled = true
-            this.userInfo = createUserInfo()
-            this.userInfo.connected = true
-            this.uuid = uuid
-        }
-
-    private fun createUserInfo(): UserInfo =
-        UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
-            firstName = "first"
-            lastName = "last"
-            verifiedEmail = "email@mail.com"
-            phoneNumber = "+3859"
-            country = "HRV"
-            dateOfBirth = "2002-07-01"
-            identyumNumber = UUID.randomUUID().toString()
-            webSessionUuid = UUID.randomUUID().toString()
-            documentType = "ID"
-            documentNumber = "1242342"
-            citizenship = "HRV"
-            resident = true
-            addressCity = "city"
-            addressCounty = "county"
-            addressStreet = "street"
-            createdAt = ZonedDateTime.now()
-            connected = false
-        }
+        User(
+            uuid,
+            "first",
+            "last",
+            "email@mail.com",
+            null,
+            AuthMethod.EMAIL,
+            null,
+            Role(0, "USER", "Description"),
+            ZonedDateTime.now(),
+            true
+        )
 
     private class TestContext {
         lateinit var uuids: List<UUID>

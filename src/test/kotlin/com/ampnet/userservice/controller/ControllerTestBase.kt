@@ -88,20 +88,18 @@ abstract class ControllerTestBase : TestBase() {
         password: String? = null,
         uuid: UUID = UUID.randomUUID()
     ): User {
-        return createUser(email, auth, password, uuid, createUserInfo())
-    }
-
-    protected fun createUser(email: String, auth: AuthMethod, password: String?, uuid: UUID, userInfo: UserInfo): User {
-        val user = User::class.java.getConstructor().newInstance().apply {
-            authMethod = auth
-            createdAt = ZonedDateTime.now()
-            this.email = email
-            enabled = true
-            role = roleRepository.getOne(UserRoleType.USER.id)
-            this.userInfo = userInfo
-            this.uuid = uuid
-            this.password = passwordEncoder.encode(password.orEmpty())
-        }
+        val user = User(
+            uuid,
+            "firstname",
+            "lastname",
+            email,
+            passwordEncoder.encode(password.orEmpty()),
+            auth,
+            null,
+            roleRepository.getOne(UserRoleType.USER.id),
+            ZonedDateTime.now(),
+            true
+        )
         return userRepository.save(user)
     }
 
