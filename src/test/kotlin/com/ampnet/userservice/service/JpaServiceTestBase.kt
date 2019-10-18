@@ -77,7 +77,8 @@ abstract class JpaServiceTestBase : TestBase() {
         webSessionUuid: String = UUID.randomUUID().toString(),
         first: String = "firstname",
         last: String = "lastname",
-        email: String = "email@mail.com"
+        email: String = "email@mail.com",
+        disabled: Boolean = false
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
             firstName = first
@@ -97,6 +98,7 @@ abstract class JpaServiceTestBase : TestBase() {
             addressStreet = "street"
             createdAt = ZonedDateTime.now()
             connected = false
+            this.deactivated = disabled
         }
         return userInfoRepository.save(userInfo)
     }

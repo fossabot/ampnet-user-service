@@ -9,8 +9,10 @@ import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.RoleRepository
+import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.AdminService
+import com.ampnet.userservice.service.pojo.UserCount
 import java.time.ZonedDateTime
 import java.util.UUID
 import mu.KLogging
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class AdminServiceImpl(
     private val userRepository: UserRepository,
+    private val userInfoRepository: UserInfoRepository,
     private val roleRepository: RoleRepository,
     private val passwordEncoder: PasswordEncoder
 ) : AdminService {
@@ -74,6 +77,15 @@ class AdminServiceImpl(
         logger.info { "Changing user role for user: ${user.uuid} to role: $role" }
         user.role = getRole(role)
         return userRepository.save(user)
+    }
+
+    @Transactional(readOnly = true)
+    override fun countUsers(): UserCount {
+        val userInfos = userInfoRepository.findAll()
+        val registeredUsers = userInfos.size
+        val activatedUsers = userInfos.filter { it.connected }.size
+        val deactivatedUsers = userInfos.filter { it.deactivated }.size
+        return UserCount(registeredUsers, activatedUsers, deactivatedUsers)
     }
 
     private fun getRole(role: UserRoleType) = when (role) {

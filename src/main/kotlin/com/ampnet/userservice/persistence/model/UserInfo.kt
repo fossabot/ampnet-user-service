@@ -64,5 +64,8 @@ data class UserInfo(
     var createdAt: ZonedDateTime,
 
     @Column(nullable = false)
-    var connected: Boolean
+    var connected: Boolean,
+
+    @Column(nullable = false)
+    var deactivated: Boolean
 )

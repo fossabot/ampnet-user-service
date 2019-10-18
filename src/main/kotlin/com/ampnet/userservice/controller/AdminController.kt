@@ -8,6 +8,7 @@ import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.AdminService
 import com.ampnet.userservice.service.UserService
+import com.ampnet.userservice.service.pojo.UserCount
 import java.util.UUID
 import javax.validation.Valid
 import mu.KLogging
@@ -54,9 +55,8 @@ class AdminController(private val adminService: AdminService, private val userSe
     @PreAuthorize("hasAuthority(T(com.ampnet.userservice.enums.PrivilegeType).PRA_PROFILE)")
     fun getUser(@PathVariable("uuid") uuid: UUID): ResponseEntity<UserResponse> {
         logger.debug { "Received request for user info with uuid: $uuid" }
-        return userService.find(uuid)?.let {
-            ResponseEntity.ok(UserResponse(it))
-        } ?: ResponseEntity.notFound().build()
+        return userService.find(uuid)?.let { ResponseEntity.ok(UserResponse(it)) }
+            ?: ResponseEntity.notFound().build()
     }
 
     @PostMapping("/admin/user/{uuid}/role")
@@ -79,6 +79,14 @@ class AdminController(private val adminService: AdminService, private val userSe
         logger.debug { "Received request to get a list of admin users" }
         val users = adminService.findByRole(UserRoleType.ADMIN)
         return generateUserListResponse(users)
+    }
+
+    @GetMapping("/admin/user/count")
+    @PreAuthorize("hasAuthority(T(com.ampnet.userservice.enums.PrivilegeType).PRA_PROFILE)")
+    fun getUserCount(): ResponseEntity<UserCount> {
+        logger.debug { "Received request to get user count" }
+        val userCount = adminService.countUsers()
+        return ResponseEntity.ok(userCount)
     }
 
     private fun generateUserListResponse(users: List<User>): ResponseEntity<UsersListResponse> {

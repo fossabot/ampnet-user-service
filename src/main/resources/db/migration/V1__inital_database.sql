@@ -28,7 +28,8 @@ CREATE TABLE user_info (
     address_county VARCHAR,
     address_street VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    connected BOOLEAN NOT NULL
+    connected BOOLEAN NOT NULL,
+    deactivated BOOLEAN NOT NULL
 );
 CREATE TABLE app_user (
     uuid UUID PRIMARY KEY,

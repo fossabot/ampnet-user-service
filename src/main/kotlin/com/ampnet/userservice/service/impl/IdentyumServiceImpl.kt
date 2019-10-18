@@ -135,6 +135,7 @@ class IdentyumServiceImpl(
             addressStreet = document.address?.streetAndNumber
             createdAt = ZonedDateTime.now()
             connected = false
+            deactivated = false
         }
         return userInfo
     }

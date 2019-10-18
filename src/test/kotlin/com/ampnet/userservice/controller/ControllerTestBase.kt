@@ -108,7 +108,9 @@ abstract class ControllerTestBase : TestBase() {
         last: String = "lastname",
         email: String = "email@mail.com",
         phone: String = "+3859",
-        webSessionUuid: String = "1234-1234-1234-1234"
+        webSessionUuid: String = "1234-1234-1234-1234",
+        connected: Boolean = true,
+        disabled: Boolean = false
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
             this.webSessionUuid = webSessionUuid
@@ -127,7 +129,8 @@ abstract class ControllerTestBase : TestBase() {
             addressCounty = "county"
             addressStreet = "street"
             createdAt = ZonedDateTime.now()
-            connected = true
+            this.connected = connected
+            this.deactivated = disabled
         }
         return userInfoRepository.save(userInfo)
     }
