@@ -447,6 +447,11 @@ class RegistrationControllerTest : ControllerTestBase() {
         verify("The controller returned valid user") {
             val userResponse: UserResponse = objectMapper.readValue(testContext.mvcResult.response.contentAsString)
             assertThat(userResponse.email).isEqualTo(email)
+            assertThat(userResponse.role).isEqualTo(UserRoleType.USER.toString())
+            assertThat(userResponse.uuid).isNotEmpty()
+            assertThat(userResponse.firstName).isNotEmpty()
+            assertThat(userResponse.lastName).isNotEmpty()
+            assertThat(userResponse.enabled).isTrue()
         }
 
         verify("The user is stored in database") {
