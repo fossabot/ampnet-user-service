@@ -4,7 +4,6 @@ import com.ampnet.mailservice.proto.Empty
 import com.ampnet.mailservice.proto.MailConfirmationRequest
 import com.ampnet.mailservice.proto.MailServiceGrpc
 import com.ampnet.mailservice.proto.ResetPasswordRequest
-import com.ampnet.userservice.grpc.mailservice.MailService
 import io.grpc.stub.StreamObserver
 import mu.KLogging
 import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory

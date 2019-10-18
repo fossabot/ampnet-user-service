@@ -8,9 +8,7 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.RoleRepository
-import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.AdminService
 import java.time.ZonedDateTime
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional
 class AdminServiceImpl(
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
-    private val userInfoRepository: UserInfoRepository,
     private val passwordEncoder: PasswordEncoder
 ) : AdminService {
 
@@ -49,7 +46,7 @@ class AdminServiceImpl(
     }
 
     @Transactional
-    override fun createAdminUser(request: CreateAdminUserRequest): User {
+    override fun createUser(request: CreateAdminUserRequest): User {
         if (userRepository.findByEmail(request.email).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS, "Email: ${request.email} already used")
         }
@@ -82,28 +79,5 @@ class AdminServiceImpl(
     private fun getRole(role: UserRoleType) = when (role) {
         UserRoleType.ADMIN -> adminRole
         UserRoleType.USER -> userRole
-    }
-
-    private fun createAdminUserInfo(request: CreateAdminUserRequest): UserInfo {
-        val userInfo = UserInfo(0,
-            UUID.randomUUID().toString(),
-            request.firstName,
-            request.lastName,
-            request.email,
-            "+0",
-            "NON",
-            "00-00-0000",
-            "0000-0000-0000-0000",
-            "NON",
-            "000000",
-            "NON",
-            false,
-            null,
-            null,
-            null,
-            ZonedDateTime.now(),
-            true
-        )
-        return userInfoRepository.save(userInfo)
     }
 }

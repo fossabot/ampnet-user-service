@@ -30,7 +30,7 @@ class AdminController(private val adminService: AdminService, private val userSe
     fun createAdminUser(@RequestBody @Valid request: CreateAdminUserRequest): ResponseEntity<UserResponse> {
         val userPrincipal = ControllerUtils.getUserPrincipalFromSecurityContext()
         logger.info { "Received request to create user with email: ${request.email} by admin: ${userPrincipal.uuid}" }
-        val user = adminService.createAdminUser(request)
+        val user = adminService.createUser(request)
         return ResponseEntity.ok(UserResponse(user))
     }
 

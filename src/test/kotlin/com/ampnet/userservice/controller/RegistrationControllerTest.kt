@@ -14,7 +14,7 @@ import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
-import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -403,7 +403,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     private fun createUnconfirmedUser() {
         databaseCleanerService.deleteAllUsers()
         createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        val request = CreateUserServiceRequest(
+        val request = CreateUserWithUserInfo(
             testUser.webSessionUuid, testUser.email, testUser.password, testUser.authMethod)
         val savedUser = userService.createUser(request)
         testUser.uuid = savedUser.uuid

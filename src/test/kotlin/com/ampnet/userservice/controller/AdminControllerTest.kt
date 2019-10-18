@@ -54,6 +54,7 @@ class AdminControllerTest : ControllerTestBase() {
             val optionalUser = userRepository.findByEmail(testContext.email)
             assertThat(optionalUser).isPresent
             assertThat(optionalUser.get().role.name).isEqualTo(UserRoleType.ADMIN.name)
+            assertThat(optionalUser.get().userInfo).isNull()
         }
     }
 

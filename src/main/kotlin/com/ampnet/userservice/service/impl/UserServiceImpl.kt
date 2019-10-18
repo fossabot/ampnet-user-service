@@ -7,6 +7,7 @@ import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.exception.ResourceNotFoundException
+import com.ampnet.userservice.grpc.mailservice.MailService
 import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.MailToken
 import com.ampnet.userservice.persistence.model.Role
@@ -16,9 +17,8 @@ import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
-import com.ampnet.userservice.grpc.mailservice.MailService
 import com.ampnet.userservice.service.UserService
-import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
 import java.time.ZonedDateTime
 import java.util.UUID
 import mu.KLogging
@@ -43,7 +43,7 @@ class UserServiceImpl(
     private val userRole: Role by lazy { roleRepository.getOne(UserRoleType.USER.id) }
 
     @Transactional
-    override fun createUser(request: CreateUserServiceRequest): User {
+    override fun createUser(request: CreateUserWithUserInfo): User {
         if (userRepository.findByEmail(request.email).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS,
                 "Trying to create user with email that already exists: ${request.email}")
@@ -140,7 +140,7 @@ class UserServiceImpl(
         return true
     }
 
-    private fun createUserFromRequest(request: CreateUserServiceRequest): User {
+    private fun createUserFromRequest(request: CreateUserWithUserInfo): User {
         val userInfo = userInfoRepository.findByWebSessionUuid(request.webSessionUuid).orElseThrow {
             throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
                 "Missing UserInfo with Identyum webSessionUuid: ${request.webSessionUuid}")

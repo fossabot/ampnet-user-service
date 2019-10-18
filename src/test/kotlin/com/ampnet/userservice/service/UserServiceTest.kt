@@ -9,7 +9,7 @@ import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.impl.UserServiceImpl
-import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
 import java.time.ZonedDateTime
 import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
@@ -48,7 +48,7 @@ class UserServiceTest : JpaServiceTestBase() {
         suppose("User created new account") {
             val service = createUserService(testContext.applicationProperties)
             val userInfo = createUserInfo()
-            val request = CreateUserServiceRequest(
+            val request = CreateUserWithUserInfo(
                 userInfo.webSessionUuid, testContext.email, "password", AuthMethod.EMAIL)
             testContext.user = service.createUser(request)
         }
@@ -77,7 +77,7 @@ class UserServiceTest : JpaServiceTestBase() {
         suppose("User created new account") {
             val service = createUserService(testContext.applicationProperties)
             val userInfo = createUserInfo()
-            val request = CreateUserServiceRequest(
+            val request = CreateUserWithUserInfo(
                 userInfo.webSessionUuid, testContext.email, "password", AuthMethod.EMAIL)
             testContext.user = service.createUser(request)
         }
