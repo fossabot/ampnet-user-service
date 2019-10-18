@@ -16,7 +16,7 @@ import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
-import com.ampnet.userservice.service.MailService
+import com.ampnet.userservice.grpc.mailservice.MailService
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import java.time.ZonedDateTime

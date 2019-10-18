@@ -1,4 +1,4 @@
-package com.ampnet.userservice.service
+package com.ampnet.userservice.grpc.mailservice
 
 interface MailService {
     fun sendConfirmationMail(email: String, token: String)

@@ -5,6 +5,7 @@ import com.ampnet.userservice.config.DatabaseCleanerService
 import com.ampnet.userservice.config.PasswordEncoderConfig
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.enums.UserRoleType
+import com.ampnet.userservice.grpc.mailservice.MailService
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository

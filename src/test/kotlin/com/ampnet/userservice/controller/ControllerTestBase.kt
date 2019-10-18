@@ -11,7 +11,7 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
-import com.ampnet.userservice.service.MailService
+import com.ampnet.userservice.grpc.mailservice.MailService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
