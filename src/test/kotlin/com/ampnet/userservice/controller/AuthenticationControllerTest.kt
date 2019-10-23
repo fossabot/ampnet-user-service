@@ -1,15 +1,15 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.core.jwt.JwtTokenUtils
+import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.userservice.config.ApplicationProperties
-import com.ampnet.userservice.config.auth.TokenProvider
-import com.ampnet.userservice.config.auth.UserPrincipal
 import com.ampnet.userservice.controller.pojo.request.ChangePasswordTokenRequest
 import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
 import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
-import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
+import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.exception.SocialException
 import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.RefreshToken
@@ -20,6 +20,8 @@ import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.time.ZonedDateTime
+import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,16 +32,12 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.ZonedDateTime
-import java.util.UUID
 
 @ActiveProfiles("SocialMockConfig")
 class AuthenticationControllerTest : ControllerTestBase() {
 
     @Autowired
     private lateinit var userService: UserService
-    @Autowired
-    private lateinit var tokenProvider: TokenProvider
     @Autowired
     private lateinit var socialService: SocialService
     @Autowired
@@ -91,7 +89,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isOk)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             testContext.tokenResponse = objectMapper.readValue(result.response.contentAsString)
         }
@@ -127,7 +125,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isOk)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             testContext.tokenResponse = objectMapper.readValue(result.response.contentAsString)
         }
@@ -163,7 +161,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isOk)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             testContext.tokenResponse = objectMapper.readValue(result.response.contentAsString)
         }
@@ -220,7 +218,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             val error = objectMapper.readValue<ErrorResponse>(result.response.contentAsString)
             val expectedErrorCode = getResponseErrorCode(ErrorCode.USER_MISSING)
@@ -251,7 +249,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             val errorResponse = objectMapper.readValue<ErrorResponse>(result.response.contentAsString)
             val expectedErrorCode = getResponseErrorCode(ErrorCode.AUTH_INVALID_LOGIN_METHOD)
@@ -460,8 +458,14 @@ class AuthenticationControllerTest : ControllerTestBase() {
     }
 
     private fun verifyTokenForUserData(token: String) {
-        val tokenPrincipal = tokenProvider.parseToken(token)
-        val storedUserPrincipal = UserPrincipal(testContext.user)
+        val tokenPrincipal = JwtTokenUtils.decodeToken(token, applicationProperties.jwt.signingKey)
+        val storedUserPrincipal = UserPrincipal(
+            testContext.user.uuid,
+            testContext.user.email,
+            testContext.user.getFullName(),
+            testContext.user.getAuthorities().asSequence().map { it.authority }.toSet(),
+            testContext.user.enabled
+        )
         assertThat(tokenPrincipal).isEqualTo(storedUserPrincipal)
     }
 

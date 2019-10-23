@@ -3,8 +3,8 @@ package com.ampnet.userservice.service.impl
 import com.ampnet.userservice.config.ApplicationProperties
 import com.ampnet.userservice.controller.pojo.request.IdentyumPayloadRequest
 import com.ampnet.userservice.exception.ErrorCode
-import com.ampnet.userservice.exception.IdentyumException
 import com.ampnet.userservice.exception.IdentyumCommunicationException
+import com.ampnet.userservice.exception.IdentyumException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
@@ -16,6 +16,12 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.security.MessageDigest
+import java.time.ZonedDateTime
+import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import mu.KLogging
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -27,12 +33,6 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
-import java.security.MessageDigest
-import java.time.ZonedDateTime
-import java.util.Base64
-import javax.crypto.Cipher
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.SecretKeySpec
 
 @Service
 class IdentyumServiceImpl(

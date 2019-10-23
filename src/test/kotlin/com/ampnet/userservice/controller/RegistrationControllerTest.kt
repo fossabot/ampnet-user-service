@@ -16,6 +16,8 @@ import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.time.ZonedDateTime
+import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
@@ -29,8 +31,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.ZonedDateTime
-import java.util.UUID
 
 @ActiveProfiles("SocialMockConfig")
 class RegistrationControllerTest : ControllerTestBase() {
@@ -69,7 +69,7 @@ class RegistrationControllerTest : ControllerTestBase() {
                             .content(requestJson)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk)
-                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
         }
 
@@ -172,7 +172,7 @@ class RegistrationControllerTest : ControllerTestBase() {
                             .content(requestJson)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
 
             val response: ErrorResponse = objectMapper.readValue(result.response.contentAsString)
@@ -330,7 +330,7 @@ class RegistrationControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                     post(checkMail)
                             .content(objectMapper.writeValueAsString(request))
-                            .contentType(MediaType.APPLICATION_JSON_UTF8))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk)
                     .andReturn()
 
@@ -352,7 +352,7 @@ class RegistrationControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                     post(checkMail)
                             .content(objectMapper.writeValueAsString(request))
-                            .contentType(MediaType.APPLICATION_JSON_UTF8))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk)
                     .andReturn()
 
@@ -369,7 +369,7 @@ class RegistrationControllerTest : ControllerTestBase() {
             mockMvc.perform(
                     post(checkMail)
                             .content(objectMapper.writeValueAsString(request))
-                            .contentType(MediaType.APPLICATION_JSON_UTF8))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest)
         }
     }

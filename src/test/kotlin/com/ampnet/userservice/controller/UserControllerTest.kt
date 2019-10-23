@@ -5,6 +5,7 @@ import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.enums.PrivilegeType
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,7 +15,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 class UserControllerTest : ControllerTestBase() {
 
@@ -40,7 +40,7 @@ class UserControllerTest : ControllerTestBase() {
         verify("The controller must return user data") {
             val result = mockMvc.perform(get(pathMe))
                     .andExpect(status().isOk)
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andReturn()
             val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(userResponse.email).isEqualTo(testContext.email)
@@ -77,9 +77,9 @@ class UserControllerTest : ControllerTestBase() {
             val result = mockMvc.perform(
                 post("$pathMe/password")
                     .content(objectMapper.writeValueAsString(request))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8))
+                    .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
             val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(userResponse.uuid).isEqualTo(defaultUuid.toString())

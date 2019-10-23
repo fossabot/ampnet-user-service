@@ -8,15 +8,15 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.service.UserService
 import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import java.time.ZonedDateTime
+import java.util.UUID
+import javax.validation.Valid
 import mu.KLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import java.time.ZonedDateTime
-import java.util.UUID
-import javax.validation.Valid
 
 @RestController
 class TestController(

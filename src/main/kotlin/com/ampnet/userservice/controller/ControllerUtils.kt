@@ -1,7 +1,7 @@
 package com.ampnet.userservice.controller
 
-import com.ampnet.userservice.config.auth.UserPrincipal
-import com.ampnet.userservice.exception.TokenException
+import com.ampnet.core.jwt.UserPrincipal
+import com.ampnet.core.jwt.exception.TokenException
 import org.springframework.security.core.context.SecurityContextHolder
 
 internal object ControllerUtils {

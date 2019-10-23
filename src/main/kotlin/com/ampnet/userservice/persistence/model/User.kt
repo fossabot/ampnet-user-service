@@ -2,7 +2,6 @@ package com.ampnet.userservice.persistence.model
 
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.enums.UserRoleType
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.time.ZonedDateTime
 import java.util.UUID
 import javax.persistence.Column
@@ -15,6 +14,7 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
 import javax.persistence.Table
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 @Entity
 @Table(name = "app_user")

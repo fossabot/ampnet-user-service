@@ -8,11 +8,11 @@ import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.proto.GetUsersRequest
 import com.ampnet.userservice.proto.UsersResponse
 import io.grpc.stub.StreamObserver
+import java.time.ZonedDateTime
+import java.util.UUID
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import java.time.ZonedDateTime
-import java.util.UUID
 
 class GrpcUserServerTest : TestBase() {
 

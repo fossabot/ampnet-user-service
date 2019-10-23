@@ -8,6 +8,8 @@ import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.AdminService
 import com.ampnet.userservice.service.UserService
+import java.util.UUID
+import javax.validation.Valid
 import mu.KLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -17,8 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
-import javax.validation.Valid
 
 @RestController
 class AdminController(private val adminService: AdminService, private val userService: UserService) {

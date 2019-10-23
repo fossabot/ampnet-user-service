@@ -7,9 +7,9 @@ import com.ampnet.userservice.proto.UserResponse
 import com.ampnet.userservice.proto.UserServiceGrpc
 import com.ampnet.userservice.proto.UsersResponse
 import io.grpc.stub.StreamObserver
+import java.util.UUID
 import mu.KLogging
 import net.devh.boot.grpc.server.service.GrpcService
-import java.util.UUID
 
 @GrpcService
 class GrpcUserServer(private val userRepository: UserRepository) : UserServiceGrpc.UserServiceImplBase() {

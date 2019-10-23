@@ -1,5 +1,6 @@
 package com.ampnet.userservice.controller
 
+import com.ampnet.core.jwt.exception.TokenException
 import com.ampnet.userservice.controller.pojo.request.ChangePasswordTokenRequest
 import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
@@ -8,17 +9,17 @@ import com.ampnet.userservice.controller.pojo.request.TokenRequestSocialInfo
 import com.ampnet.userservice.controller.pojo.request.TokenRequestUserInfo
 import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
 import com.ampnet.userservice.controller.pojo.response.UserResponse
-import com.ampnet.userservice.exception.InvalidLoginMethodException
-import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.exception.ErrorCode
-import com.ampnet.userservice.exception.TokenException
+import com.ampnet.userservice.exception.InvalidLoginMethodException
+import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.TokenService
 import com.ampnet.userservice.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import javax.validation.Valid
 import mu.KLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
@@ -26,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import javax.validation.Valid
 
 @RestController
 class AuthenticationController(

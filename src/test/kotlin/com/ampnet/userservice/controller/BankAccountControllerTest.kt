@@ -8,6 +8,8 @@ import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.BankAccountRepository
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.time.ZonedDateTime
+import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,8 +20,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.ZonedDateTime
-import java.util.UUID
 
 class BankAccountControllerTest : ControllerTestBase() {
 
@@ -52,7 +52,7 @@ class BankAccountControllerTest : ControllerTestBase() {
         verify("User can get a list of bank accounts") {
             val result = mockMvc.perform(get(bankAccountPath))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val bankAccounts: BankAccountListResponse = objectMapper.readValue(result.response.contentAsString)
@@ -73,7 +73,7 @@ class BankAccountControllerTest : ControllerTestBase() {
                     .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
 
             val bankAccount: BankAccountResponse = objectMapper.readValue(result.response.contentAsString)
