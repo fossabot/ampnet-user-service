@@ -8,11 +8,13 @@ import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
 import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
 import com.ampnet.userservice.enums.AuthMethod
+import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.exception.SocialException
 import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.RefreshToken
+import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.RefreshTokenRepository
@@ -53,6 +55,9 @@ class AuthenticationControllerTest : ControllerTestBase() {
     private val regularTestUser = RegularTestUser()
     private val facebookTestUser = FacebookTestUser()
     private val googleTestUser = GoogleTestUser()
+    private val adminRole: Role by lazy {
+        roleRepository.getOne(UserRoleType.ADMIN.id)
+    }
 
     private lateinit var testContext: TestContext
 
@@ -464,7 +469,8 @@ class AuthenticationControllerTest : ControllerTestBase() {
             testContext.user.email,
             testContext.user.getFullName(),
             testContext.user.getAuthorities().asSequence().map { it.authority }.toSet(),
-            testContext.user.enabled
+            testContext.user.enabled,
+            (testContext.user.userInfo != null || testContext.user.role == adminRole)
         )
         assertThat(tokenPrincipal).isEqualTo(storedUserPrincipal)
     }
