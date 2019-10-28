@@ -38,11 +38,13 @@ class TestControllerTest : ControllerTestBase() {
 
             val user: UserResponse = objectMapper.readValue(result.response.contentAsString)
             assertThat(user.email).isEqualTo(testContext.email)
-            assertThat(user.firstName).isEqualTo("Test")
+            assertThat(user.firstName).isEqualTo(TestController.testName)
+            assertThat(user.lastName).isEqualTo(TestController.testName)
         }
         verify("User is created") {
             val optionalUser = userRepository.findByEmail(testContext.email)
             assertThat(optionalUser).isPresent
+            assertThat(optionalUser.get().userInfo).isNull()
         }
     }
 

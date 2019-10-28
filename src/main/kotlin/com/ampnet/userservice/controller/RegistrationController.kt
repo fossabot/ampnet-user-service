@@ -13,7 +13,7 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.service.IdentyumService
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
-import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -93,24 +93,24 @@ class RegistrationController(
         return ResponseEntity.notFound().build()
     }
 
-    private fun createUserRequest(request: SignupRequest): CreateUserServiceRequest {
+    private fun createUserRequest(request: SignupRequest): CreateUserWithUserInfo {
         try {
             val jsonString = objectMapper.writeValueAsString(request.userInfo)
             return when (request.signupMethod) {
                 AuthMethod.EMAIL -> {
                     val userInfo: SignupRequestUserInfo = objectMapper.readValue(jsonString)
-                    CreateUserServiceRequest(
+                    CreateUserWithUserInfo(
                         request.webSessionUuid, userInfo.email, userInfo.password, request.signupMethod)
                 }
                 AuthMethod.GOOGLE -> {
                     val socialInfo: SignupRequestSocialInfo = objectMapper.readValue(jsonString)
                     val email = socialService.getGoogleEmail(socialInfo.token)
-                    CreateUserServiceRequest(request.webSessionUuid, email, null, request.signupMethod)
+                    CreateUserWithUserInfo(request.webSessionUuid, email, null, request.signupMethod)
                 }
                 AuthMethod.FACEBOOK -> {
                     val socialInfo: SignupRequestSocialInfo = objectMapper.readValue(jsonString)
                     val email = socialService.getFacebookEmail(socialInfo.token)
-                    CreateUserServiceRequest(request.webSessionUuid, email, null, request.signupMethod)
+                    CreateUserWithUserInfo(request.webSessionUuid, email, null, request.signupMethod)
                 }
             }
         } catch (ex: MissingKotlinParameterException) {
@@ -120,7 +120,7 @@ class RegistrationController(
         }
     }
 
-    private fun validateRequestOrThrow(request: CreateUserServiceRequest) {
+    private fun validateRequestOrThrow(request: CreateUserWithUserInfo) {
         val errors = validator.validate(request)
         if (errors.isNotEmpty()) {
             logger.info { "Invalid CreateUserServiceRequest: $request" }

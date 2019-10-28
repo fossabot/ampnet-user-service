@@ -28,17 +28,20 @@ CREATE TABLE user_info (
     address_county VARCHAR,
     address_street VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    connected BOOLEAN NOT NULL
+    connected BOOLEAN NOT NULL,
+    deactivated BOOLEAN NOT NULL
 );
 CREATE TABLE app_user (
     uuid UUID PRIMARY KEY,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL,
     email VARCHAR NOT NULL,
     password VARCHAR(60),
     role_id INT REFERENCES role(id) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     auth_method VARCHAR(8) NOT NULL,
     enabled BOOLEAN NOT NULL,
-    user_info_id INT REFERENCES user_info(id) NOT NULL
+    user_info_id INT REFERENCES user_info(id)
 );
 
 -- Token

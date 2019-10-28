@@ -297,3 +297,13 @@ Must have Admin role - privilege: `PrivilegeType.PWA_PROFILE`
 include::{snippets}/AdminControllerTest/mustBeAbleToCreateAdminUser/http-request.adoc[]
 .Response
 include::{snippets}/AdminControllerTest/mustBeAbleToCreateAdminUser/http-response.adoc[]
+
+== Count users
+* `registered` are all users that completed KYC procedure
+* `activated` completed KYC and registered on the platform
+* `deleted` have deactivated their account on the platform
+
+.Request
+include::{snippets}/AdminControllerTest/mustBeAbleToGetUserCount/http-request.adoc[]
+.Response
+include::{snippets}/AdminControllerTest/mustBeAbleToGetUserCount/http-response.adoc[]

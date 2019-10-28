@@ -5,8 +5,8 @@ import com.ampnet.userservice.persistence.model.User
 data class UserResponse(
     val uuid: String,
     val email: String,
-    val firstName: String?,
-    val lastName: String?,
+    val firstName: String,
+    val lastName: String,
     val role: String,
     val enabled: Boolean
 ) {
@@ -14,8 +14,8 @@ data class UserResponse(
     constructor(user: User) : this(
         user.uuid.toString(),
         user.email,
-        user.userInfo.firstName,
-        user.userInfo.lastName,
+        user.firstName,
+        user.lastName,
         user.role.name,
         user.enabled
     )

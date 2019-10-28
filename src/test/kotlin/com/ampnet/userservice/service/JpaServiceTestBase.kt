@@ -5,6 +5,7 @@ import com.ampnet.userservice.config.DatabaseCleanerService
 import com.ampnet.userservice.config.PasswordEncoderConfig
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.enums.UserRoleType
+import com.ampnet.userservice.grpc.mailservice.MailService
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
@@ -57,18 +58,18 @@ abstract class JpaServiceTestBase : TestBase() {
         password: String? = null,
         authMethod: AuthMethod = AuthMethod.EMAIL
     ): User {
-        val userInfo = createUserInfo(email, firstName, lastName)
-        val user = User::class.java.getConstructor().newInstance().apply {
-            this.authMethod = authMethod
-            this.password = password
-            createdAt = ZonedDateTime.now()
-            this.email = email
-            enabled = true
-            role = roleRepository.getOne(UserRoleType.USER.id)
-            this.userInfo = userInfo
-            this.userInfo.connected = true
-            uuid = UUID.randomUUID()
-        }
+        val user = User(
+            UUID.randomUUID(),
+            firstName,
+            lastName,
+            email,
+            password,
+            authMethod,
+            null,
+            roleRepository.getOne(UserRoleType.USER.id),
+            ZonedDateTime.now(),
+            true
+        )
         return userRepository.save(user)
     }
 
@@ -76,7 +77,8 @@ abstract class JpaServiceTestBase : TestBase() {
         webSessionUuid: String = UUID.randomUUID().toString(),
         first: String = "firstname",
         last: String = "lastname",
-        email: String = "email@mail.com"
+        email: String = "email@mail.com",
+        disabled: Boolean = false
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
             firstName = first
@@ -96,6 +98,7 @@ abstract class JpaServiceTestBase : TestBase() {
             addressStreet = "street"
             createdAt = ZonedDateTime.now()
             connected = false
+            this.deactivated = disabled
         }
         return userInfoRepository.save(userInfo)
     }

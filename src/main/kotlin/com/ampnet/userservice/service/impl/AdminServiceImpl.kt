@@ -8,11 +8,11 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.AdminService
+import com.ampnet.userservice.service.pojo.UserCount
 import java.time.ZonedDateTime
 import java.util.UUID
 import mu.KLogging
@@ -23,8 +23,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class AdminServiceImpl(
     private val userRepository: UserRepository,
-    private val roleRepository: RoleRepository,
     private val userInfoRepository: UserInfoRepository,
+    private val roleRepository: RoleRepository,
     private val passwordEncoder: PasswordEncoder
 ) : AdminService {
 
@@ -49,18 +49,19 @@ class AdminServiceImpl(
     }
 
     @Transactional
-    override fun createAdminUser(request: CreateAdminUserRequest): User {
+    override fun createUser(request: CreateAdminUserRequest): User {
         if (userRepository.findByEmail(request.email).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS, "Email: ${request.email} already used")
         }
         logger.info { "Creating Admin user: $request" }
-        val userInfo = createAdminUserInfo(request)
         val user = User(
             UUID.randomUUID(),
+            request.firstName,
+            request.lastName,
             request.email,
             passwordEncoder.encode(request.password),
             AuthMethod.EMAIL,
-            userInfo,
+            null,
             getRole(request.role),
             ZonedDateTime.now(),
             true
@@ -78,31 +79,17 @@ class AdminServiceImpl(
         return userRepository.save(user)
     }
 
+    @Transactional(readOnly = true)
+    override fun countUsers(): UserCount {
+        val userInfos = userInfoRepository.findAll()
+        val registeredUsers = userInfos.size
+        val activatedUsers = userInfos.filter { it.connected }.size
+        val deactivatedUsers = userInfos.filter { it.deactivated }.size
+        return UserCount(registeredUsers, activatedUsers, deactivatedUsers)
+    }
+
     private fun getRole(role: UserRoleType) = when (role) {
         UserRoleType.ADMIN -> adminRole
         UserRoleType.USER -> userRole
-    }
-
-    private fun createAdminUserInfo(request: CreateAdminUserRequest): UserInfo {
-        val userInfo = UserInfo(0,
-            UUID.randomUUID().toString(),
-            request.firstName,
-            request.lastName,
-            request.email,
-            "+0",
-            "NON",
-            "00-00-0000",
-            "0000-0000-0000-0000",
-            "NON",
-            "000000",
-            "NON",
-            false,
-            null,
-            null,
-            null,
-            ZonedDateTime.now(),
-            true
-        )
-        return userInfoRepository.save(userInfo)
     }
 }

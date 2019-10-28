@@ -43,8 +43,8 @@ class GrpcUserServer(private val userRepository: UserRepository) : UserServiceGr
         UserResponse.newBuilder()
             .setUuid(user.uuid.toString())
             .setEmail(user.email)
-            .setFirstName(user.userInfo.firstName)
-            .setLastName(user.userInfo.lastName)
+            .setFirstName(user.firstName)
+            .setLastName(user.lastName)
             .setEnabled(user.enabled)
             .build()
 }

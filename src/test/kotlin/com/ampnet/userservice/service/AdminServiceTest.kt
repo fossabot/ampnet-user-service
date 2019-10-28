@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Import
 class AdminServiceTest : JpaServiceTestBase() {
 
     private val service: AdminService by lazy {
-        AdminServiceImpl(userRepository, roleRepository, userInfoRepository, passwordEncoder)
+        AdminServiceImpl(userRepository, userInfoRepository, roleRepository, passwordEncoder)
     }
 
     private lateinit var testContext: TestContext

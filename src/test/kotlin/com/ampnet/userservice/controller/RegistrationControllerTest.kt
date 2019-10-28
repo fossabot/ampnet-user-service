@@ -14,7 +14,7 @@ import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
-import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
+import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -403,7 +403,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     private fun createUnconfirmedUser() {
         databaseCleanerService.deleteAllUsers()
         createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        val request = CreateUserServiceRequest(
+        val request = CreateUserWithUserInfo(
             testUser.webSessionUuid, testUser.email, testUser.password, testUser.authMethod)
         val savedUser = userService.createUser(request)
         testUser.uuid = savedUser.uuid
@@ -447,6 +447,11 @@ class RegistrationControllerTest : ControllerTestBase() {
         verify("The controller returned valid user") {
             val userResponse: UserResponse = objectMapper.readValue(testContext.mvcResult.response.contentAsString)
             assertThat(userResponse.email).isEqualTo(email)
+            assertThat(userResponse.role).isEqualTo(UserRoleType.USER.toString())
+            assertThat(userResponse.uuid).isNotEmpty()
+            assertThat(userResponse.firstName).isNotEmpty()
+            assertThat(userResponse.lastName).isNotEmpty()
+            assertThat(userResponse.enabled).isTrue()
         }
 
         verify("The user is stored in database") {
@@ -458,8 +463,7 @@ class RegistrationControllerTest : ControllerTestBase() {
     }
 
     private fun saveTestUser(): User {
-        val userInfo = createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        val user = createUser(testUser.email, testUser.authMethod, testUser.password, UUID.randomUUID(), userInfo)
+        val user = createUser(testUser.email, testUser.authMethod, testUser.password, UUID.randomUUID())
         testUser.uuid = user.uuid
         return user
     }

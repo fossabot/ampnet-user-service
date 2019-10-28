@@ -21,7 +21,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 data class User(
     @Id
     @Column
-    var uuid: UUID,
+    val uuid: UUID,
+
+    @Column
+    val firstName: String,
+
+    @Column
+    val lastName: String,
 
     @Column
     var email: String,
@@ -35,14 +41,14 @@ data class User(
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_info_id")
-    var userInfo: UserInfo,
+    var userInfo: UserInfo?,
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     var role: Role,
 
     @Column(nullable = false)
-    var createdAt: ZonedDateTime,
+    val createdAt: ZonedDateTime,
 
     @Column(nullable = false)
     var enabled: Boolean
@@ -56,5 +62,5 @@ data class User(
         return (privileges + roleAuthority).toSet()
     }
 
-    fun getFullName(): String = "${userInfo.firstName} ${userInfo.lastName}"
+    fun getFullName(): String = "$firstName $lastName"
 }

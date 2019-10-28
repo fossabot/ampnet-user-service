@@ -6,12 +6,12 @@ import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.ErrorResponse
+import com.ampnet.userservice.grpc.mailservice.MailService
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
-import com.ampnet.userservice.service.MailService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
@@ -88,20 +88,18 @@ abstract class ControllerTestBase : TestBase() {
         password: String? = null,
         uuid: UUID = UUID.randomUUID()
     ): User {
-        return createUser(email, auth, password, uuid, createUserInfo())
-    }
-
-    protected fun createUser(email: String, auth: AuthMethod, password: String?, uuid: UUID, userInfo: UserInfo): User {
-        val user = User::class.java.getConstructor().newInstance().apply {
-            authMethod = auth
-            createdAt = ZonedDateTime.now()
-            this.email = email
-            enabled = true
-            role = roleRepository.getOne(UserRoleType.USER.id)
-            this.userInfo = userInfo
-            this.uuid = uuid
-            this.password = passwordEncoder.encode(password.orEmpty())
-        }
+        val user = User(
+            uuid,
+            "firstname",
+            "lastname",
+            email,
+            passwordEncoder.encode(password.orEmpty()),
+            auth,
+            null,
+            roleRepository.getOne(UserRoleType.USER.id),
+            ZonedDateTime.now(),
+            true
+        )
         return userRepository.save(user)
     }
 
@@ -110,7 +108,9 @@ abstract class ControllerTestBase : TestBase() {
         last: String = "lastname",
         email: String = "email@mail.com",
         phone: String = "+3859",
-        webSessionUuid: String = "1234-1234-1234-1234"
+        webSessionUuid: String = "1234-1234-1234-1234",
+        connected: Boolean = true,
+        disabled: Boolean = false
     ): UserInfo {
         val userInfo = UserInfo::class.java.getDeclaredConstructor().newInstance().apply {
             this.webSessionUuid = webSessionUuid
@@ -129,7 +129,8 @@ abstract class ControllerTestBase : TestBase() {
             addressCounty = "county"
             addressStreet = "street"
             createdAt = ZonedDateTime.now()
-            connected = true
+            this.connected = connected
+            this.deactivated = disabled
         }
         return userInfoRepository.save(userInfo)
     }

@@ -5,7 +5,7 @@ import com.ampnet.userservice.validation.EmailConstraint
 import com.ampnet.userservice.validation.PasswordConstraint
 import javax.validation.constraints.NotNull
 
-data class CreateUserServiceRequest(
+data class CreateUserWithUserInfo(
 
     @NotNull
     val webSessionUuid: String,

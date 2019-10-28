@@ -1,6 +1,6 @@
 package com.ampnet.userservice.config
 
-import com.ampnet.userservice.service.MailService
+import com.ampnet.userservice.grpc.mailservice.MailService
 import org.mockito.Mockito
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
