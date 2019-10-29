@@ -35,7 +35,9 @@ class UserController(private val userService: UserService) {
     @PreAuthorize("hasAuthority(T(com.ampnet.userservice.enums.PrivilegeType).PRO_PROFILE)")
     fun connectUserInfo(@RequestBody connectRequest: VerifyRequest): ResponseEntity<UserResponse> {
         val userUuid = ControllerUtils.getUserPrincipalFromSecurityContext().uuid
-        logger.info { "Received request to connect user info to user: $userUuid, webSessionUuid: ${connectRequest.webSessionUuid}" }
+        logger.info {
+            "Received request to connect user info to user: $userUuid, webSessionUuid: ${connectRequest.webSessionUuid}"
+        }
         val user = userService.connectUserInfo(userUuid, connectRequest.webSessionUuid)
         return ResponseEntity.ok(UserResponse(user))
     }

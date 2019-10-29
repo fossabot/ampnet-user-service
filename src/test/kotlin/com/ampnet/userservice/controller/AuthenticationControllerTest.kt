@@ -111,7 +111,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     fun signInFacebook() {
         suppose("Social service is mocked to return valid Facebook user.") {
             Mockito.`when`(socialService.getFacebookEmail(facebookTestUser.fbToken))
-                    .thenReturn(facebookTestUser.email)
+                    .thenReturn(generateSocialUser(facebookTestUser.email))
         }
         suppose("Social user identified by Facebook exists in our database.") {
             testContext.user = createUser(facebookTestUser.email, facebookTestUser.authMethod)
@@ -147,7 +147,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     fun signInGoogle() {
         suppose("Social service is mocked to return valid Google user.") {
             Mockito.`when`(socialService.getGoogleEmail(googleTestUser.googleToken))
-                    .thenReturn(googleTestUser.email)
+                    .thenReturn(generateSocialUser(googleTestUser.email))
         }
         suppose("Social user identified by Facebook exists in our database.") {
             testContext.user = createUser(googleTestUser.email, googleTestUser.authMethod)
@@ -238,7 +238,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
         }
         suppose("Social service is mocked to return google user with same email as user registered in regular way.") {
             Mockito.`when`(socialService.getGoogleEmail(googleTestUser.googleToken))
-                    .thenReturn(googleTestUser.email)
+                    .thenReturn(generateSocialUser(googleTestUser.email))
         }
         verify("The user cannot login using social method.") {
             val requestBody = """

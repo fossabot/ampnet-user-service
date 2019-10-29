@@ -12,6 +12,7 @@ import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
+import com.ampnet.userservice.service.pojo.SocialUser
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
@@ -134,4 +135,7 @@ abstract class ControllerTestBase : TestBase() {
         }
         return userInfoRepository.save(userInfo)
     }
+
+    protected fun generateSocialUser(email: String, first: String = "First", last: String = "Last") =
+        SocialUser(email, first, last)
 }

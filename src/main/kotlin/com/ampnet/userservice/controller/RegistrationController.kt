@@ -99,17 +99,17 @@ class RegistrationController(
             return when (request.signupMethod) {
                 AuthMethod.EMAIL -> {
                     val userInfo: SignupRequestUserInfo = objectMapper.readValue(jsonString)
-                    CreateUserServiceRequest(request, userInfo.email, userInfo.password)
+                    CreateUserServiceRequest(userInfo)
                 }
                 AuthMethod.GOOGLE -> {
                     val socialInfo: SignupRequestSocialInfo = objectMapper.readValue(jsonString)
-                    val email = socialService.getGoogleEmail(socialInfo.token)
-                    CreateUserServiceRequest(request, email, null)
+                    val socialUser = socialService.getGoogleEmail(socialInfo.token)
+                    CreateUserServiceRequest(socialUser, AuthMethod.GOOGLE)
                 }
                 AuthMethod.FACEBOOK -> {
                     val socialInfo: SignupRequestSocialInfo = objectMapper.readValue(jsonString)
-                    val email = socialService.getFacebookEmail(socialInfo.token)
-                    CreateUserServiceRequest(request, email, null)
+                    val socialUser = socialService.getFacebookEmail(socialInfo.token)
+                    CreateUserServiceRequest(socialUser, AuthMethod.FACEBOOK)
                 }
             }
         } catch (ex: MissingKotlinParameterException) {

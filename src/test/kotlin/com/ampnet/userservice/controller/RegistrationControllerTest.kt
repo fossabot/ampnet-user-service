@@ -182,11 +182,11 @@ class RegistrationControllerTest : ControllerTestBase() {
         suppose("Social service is mocked to return Facebook user") {
             testContext.socialEmail = "johnsmith@gmail.com"
             Mockito.`when`(socialService.getFacebookEmail(testContext.token))
-                    .thenReturn(testContext.socialEmail)
+                    .thenReturn(generateSocialUser(testContext.socialEmail))
         }
 
         verify("The user can sign up with Facebook account") {
-            verifySocialSignUp(AuthMethod.FACEBOOK, testContext.token, testContext.socialEmail, testUser.webSessionUuid)
+            verifySocialSignUp(AuthMethod.FACEBOOK, testContext.token, testContext.socialEmail)
         }
     }
 
@@ -195,11 +195,11 @@ class RegistrationControllerTest : ControllerTestBase() {
         suppose("Social service is mocked to return Google user") {
             testContext.socialEmail = "johnsmith@gmail.com"
             Mockito.`when`(socialService.getGoogleEmail(testContext.token))
-                    .thenReturn(testContext.socialEmail)
+                    .thenReturn(generateSocialUser(testContext.socialEmail))
         }
 
         verify("The user can sign up with Google account") {
-            verifySocialSignUp(AuthMethod.GOOGLE, testContext.token, testContext.socialEmail, testUser.webSessionUuid)
+            verifySocialSignUp(AuthMethod.GOOGLE, testContext.token, testContext.socialEmail)
         }
     }
 
@@ -399,11 +399,10 @@ class RegistrationControllerTest : ControllerTestBase() {
     private fun generateSignupJson(): String {
         return """
             |{
-            |  "first_name": "${testUser.first}",
-            |  "last_name": "${testUser.last}",
-            |  "web_session_uuid" : "${testUser.webSessionUuid}",
             |  "signup_method" : "${testUser.authMethod}",
             |  "user_info" : {
+            |       "first_name": "${testUser.first}",
+            |       "last_name": "${testUser.last}",
             |       "email" : "${testUser.email}",
             |       "password" : "${testUser.password}"
             |   }
@@ -411,13 +410,10 @@ class RegistrationControllerTest : ControllerTestBase() {
         """.trimMargin()
     }
 
-    private fun verifySocialSignUp(authMethod: AuthMethod, token: String, email: String, webSessionUuid: String) {
+    private fun verifySocialSignUp(authMethod: AuthMethod, token: String, email: String) {
         suppose("User has obtained token on frontend and sends signup request") {
             val request = """
             |{
-            |  "first_name": "First",
-            |  "last_name": "Last",
-            |  "web_session_uuid" : "$webSessionUuid",
             |  "signup_method" : "$authMethod",
             |  "user_info" : {
             |    "token" : "$token"

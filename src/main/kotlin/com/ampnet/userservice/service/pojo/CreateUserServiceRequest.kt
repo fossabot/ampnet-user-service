@@ -1,6 +1,6 @@
 package com.ampnet.userservice.service.pojo
 
-import com.ampnet.userservice.controller.pojo.request.SignupRequest
+import com.ampnet.userservice.controller.pojo.request.SignupRequestUserInfo
 import com.ampnet.userservice.enums.AuthMethod
 import com.ampnet.userservice.validation.EmailConstraint
 import com.ampnet.userservice.validation.PasswordConstraint
@@ -28,11 +28,19 @@ data class CreateUserServiceRequest(
     val authMethod: AuthMethod
 
 ) {
-    constructor(request: SignupRequest, email: String, password: String?) : this(
+    constructor(request: SignupRequestUserInfo) : this(
         request.firstName,
         request.lastName,
-        email,
-        password,
-        request.signupMethod
+        request.email,
+        request.password,
+        AuthMethod.EMAIL
+    )
+
+    constructor(socialUser: SocialUser, authMethod: AuthMethod) : this(
+        socialUser.firstName,
+        socialUser.lastName,
+        socialUser.email,
+        null,
+        authMethod
     )
 }

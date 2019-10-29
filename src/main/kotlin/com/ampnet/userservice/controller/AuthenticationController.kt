@@ -51,15 +51,15 @@ class AuthenticationController(
             }
             AuthMethod.FACEBOOK -> {
                 val userInfo: TokenRequestSocialInfo = objectMapper.convertValue(tokenRequest.credentials)
-                val email = socialService.getFacebookEmail(userInfo.token)
-                val user = getUserByEmail(email)
+                val socialUser = socialService.getFacebookEmail(userInfo.token)
+                val user = getUserByEmail(socialUser.email)
                 validateSocialLogin(user, AuthMethod.FACEBOOK)
                 user
             }
             AuthMethod.GOOGLE -> {
                 val userInfo: TokenRequestSocialInfo = objectMapper.convertValue(tokenRequest.credentials)
-                val email = socialService.getGoogleEmail(userInfo.token)
-                val user = getUserByEmail(email)
+                val socialUser = socialService.getGoogleEmail(userInfo.token)
+                val user = getUserByEmail(socialUser.email)
                 validateSocialLogin(user, AuthMethod.GOOGLE)
                 user
             }
