@@ -8,11 +8,9 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.grpc.mailservice.MailService
-import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.MailToken
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
@@ -32,7 +30,6 @@ class UserServiceImpl(
     private val roleRepository: RoleRepository,
     private val userInfoRepository: UserInfoRepository,
     private val mailTokenRepository: MailTokenRepository,
-    private val forgotPasswordTokenRepository: ForgotPasswordTokenRepository,
     private val mailService: MailService,
     private val passwordEncoder: PasswordEncoder,
     private val applicationProperties: ApplicationProperties
@@ -107,47 +104,6 @@ class UserServiceImpl(
         }
         val mailToken = createMailToken(user)
         mailService.sendConfirmationMail(user.email, mailToken.token.toString())
-    }
-
-    @Transactional
-    override fun changePassword(user: User, oldPassword: String, newPassword: String): User {
-        if (user.authMethod != AuthMethod.EMAIL) {
-            throw InvalidRequestException(ErrorCode.AUTH_INVALID_LOGIN_METHOD, "Cannot change password")
-        }
-        if (passwordEncoder.matches(oldPassword, user.password).not()) {
-            throw InvalidRequestException(ErrorCode.USER_DIFFERENT_PASSWORD, "Invalid old password")
-        }
-        logger.info { "Changing password for user: ${user.uuid}" }
-        user.password = passwordEncoder.encode(newPassword)
-        return userRepository.save(user)
-    }
-
-    @Transactional
-    override fun changePasswordWithToken(token: UUID, newPassword: String): User {
-        val forgotToken = forgotPasswordTokenRepository.findByToken(token).orElseThrow {
-            throw ResourceNotFoundException(ErrorCode.AUTH_FORGOT_TOKEN_MISSING, "Missing forgot token: $token")
-        }
-        if (forgotToken.isExpired()) {
-            throw InvalidRequestException(ErrorCode.AUTH_FORGOT_TOKEN_EXPIRED, "Expired token: $token")
-        }
-        val user = forgotToken.user
-        forgotPasswordTokenRepository.delete(forgotToken)
-        user.password = passwordEncoder.encode(newPassword)
-        logger.info { "Changing password using forgot password token for user: ${user.email}" }
-        return userRepository.save(user)
-    }
-
-    @Transactional
-    override fun generateForgotPasswordToken(email: String): Boolean {
-        val user = find(email) ?: return false
-        if (user.authMethod != AuthMethod.EMAIL) {
-            throw InvalidRequestException(ErrorCode.AUTH_INVALID_LOGIN_METHOD, "Cannot change password")
-        }
-        logger.info { "Generating forgot password token for user: ${user.email}" }
-        val forgotPasswordToken = ForgotPasswordToken(0, user, UUID.randomUUID(), ZonedDateTime.now())
-        forgotPasswordTokenRepository.save(forgotPasswordToken)
-        mailService.sendResetPasswordMail(user.email, forgotPasswordToken.token.toString())
-        return true
     }
 
     private fun createUserFromRequest(request: CreateUserServiceRequest): User {
