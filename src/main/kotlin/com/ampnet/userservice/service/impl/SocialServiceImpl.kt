@@ -17,6 +17,7 @@ class SocialServiceImpl : SocialService {
 
     @Throws(SocialException::class)
     override fun getFacebookEmail(token: String): String {
+        // TODO: get first and last name
         logger.debug { "Getting Facebook user info" }
         try {
             val facebook = FacebookTemplate(token)
@@ -35,6 +36,7 @@ class SocialServiceImpl : SocialService {
     @Suppress("TooGenericExceptionCaught")
     @Throws(SocialException::class)
     override fun getGoogleEmail(token: String): String {
+        // TODO: get first and last name
         logger.debug { "Getting Google user info" }
         try {
             val template = GoogleTemplate(token)

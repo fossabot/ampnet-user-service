@@ -1,12 +1,16 @@
 package com.ampnet.userservice.controller
 
 import com.ampnet.userservice.controller.pojo.request.ChangePasswordRequest
+import com.ampnet.userservice.controller.pojo.request.VerifyRequest
 import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.enums.PrivilegeType
+import com.ampnet.userservice.persistence.model.User
+import com.ampnet.userservice.persistence.model.UserInfo
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -24,6 +28,7 @@ class UserControllerTest : ControllerTestBase() {
 
     @BeforeEach
     fun initTestData() {
+        databaseCleanerService.deleteAllUsers()
         testContext = TestContext()
     }
 
@@ -31,7 +36,6 @@ class UserControllerTest : ControllerTestBase() {
     @WithMockCrowdfoundUser(uuid = "b2d05e1c-9348-40cc-a41e-4f6c06a80035", privileges = [PrivilegeType.PRO_PROFILE])
     fun mustBeAbleToGetOwnProfile() {
         suppose("User exists in database") {
-            databaseCleanerService.deleteAllUsers()
             testContext.email = "test@test.com"
             testContext.uuid = UUID.fromString("b2d05e1c-9348-40cc-a41e-4f6c06a80035")
             createUser(testContext.email, uuid = testContext.uuid)
@@ -52,7 +56,6 @@ class UserControllerTest : ControllerTestBase() {
     @WithMockCrowdfoundUser(uuid = "b2d05e1c-9348-40cc-a41e-4f6c06a80035", privileges = [PrivilegeType.PRO_PROFILE])
     fun mustThrowExceptionIfUserDoesNotExists() {
         suppose("User is not stored in database") {
-            databaseCleanerService.deleteAllUsers()
             createUser("non-existing@user.com", uuid = UUID.randomUUID())
         }
 
@@ -66,7 +69,6 @@ class UserControllerTest : ControllerTestBase() {
     @WithMockCrowdfoundUser(privileges = [PrivilegeType.PRO_PROFILE])
     fun mustBeAbleToChangeOwnPassword() {
         suppose("User is stored in database") {
-            databaseCleanerService.deleteAllUsers()
             testContext.oldPassword = "oldPassword"
             createUser(defaultEmail, password = testContext.oldPassword, uuid = defaultUuid)
         }
@@ -91,10 +93,45 @@ class UserControllerTest : ControllerTestBase() {
         }
     }
 
+    @Test
+    @WithMockCrowdfoundUser(privileges = [PrivilegeType.PRO_PROFILE])
+    fun mustBeAbleToVerifyAccount() {
+        suppose("User did not verify his account") {
+            testContext.user = createUser(defaultEmail, uuid = defaultUuid)
+            assertThat(testContext.user.userInfo).isNull()
+        }
+        suppose("Identyum sent user info") {
+            testContext.userInfo = createUserInfo(connected = false)
+        }
+
+        verify("User can verify his account") {
+            val request = VerifyRequest(testContext.userInfo.webSessionUuid)
+            val result = mockMvc.perform(
+                post("$pathMe/verify")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+            val userResponse: UserResponse = objectMapper.readValue(result.response.contentAsString)
+            assertThat(userResponse.uuid).isEqualTo(testContext.user.uuid.toString())
+            assertThat(userResponse.enabled).isTrue()
+            assertThat(userResponse.verified).isTrue()
+        }
+        verify("User account is verified") {
+            val optionalUser = userRepository.findById(defaultUuid)
+            assertThat(optionalUser).isPresent
+            val userInfo = optionalUser.get().userInfo ?: fail("Missing user info")
+            assertThat(userInfo.connected).isTrue()
+        }
+    }
+
     private class TestContext {
         var email = "john@smith.com"
         lateinit var uuid: UUID
         lateinit var oldPassword: String
         lateinit var newPassword: String
+        lateinit var user: User
+        lateinit var userInfo: UserInfo
     }
 }

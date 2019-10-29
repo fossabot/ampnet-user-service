@@ -1,5 +1,6 @@
 package com.ampnet.userservice.controller.pojo.response
 
+import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.User
 
 data class UserResponse(
@@ -8,7 +9,8 @@ data class UserResponse(
     val firstName: String,
     val lastName: String,
     val role: String,
-    val enabled: Boolean
+    val enabled: Boolean,
+    val verified: Boolean
 ) {
 
     constructor(user: User) : this(
@@ -17,7 +19,8 @@ data class UserResponse(
         user.firstName,
         user.lastName,
         user.role.name,
-        user.enabled
+        user.enabled,
+        user.userInfo != null || user.role.id == UserRoleType.ADMIN.id
     )
 }
 

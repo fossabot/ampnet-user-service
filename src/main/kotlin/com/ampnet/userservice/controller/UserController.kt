@@ -1,6 +1,7 @@
 package com.ampnet.userservice.controller
 
 import com.ampnet.userservice.controller.pojo.request.ChangePasswordRequest
+import com.ampnet.userservice.controller.pojo.request.VerifyRequest
 import com.ampnet.userservice.controller.pojo.response.UserResponse
 import com.ampnet.userservice.service.UserService
 import javax.validation.Valid
@@ -28,6 +29,15 @@ class UserController(private val userService: UserService) {
         }
         logger.error("Non existing user: ${userPrincipal.uuid} trying to get his profile")
         return ResponseEntity.notFound().build()
+    }
+
+    @PostMapping("/me/verify")
+    @PreAuthorize("hasAuthority(T(com.ampnet.userservice.enums.PrivilegeType).PRO_PROFILE)")
+    fun connectUserInfo(@RequestBody connectRequest: VerifyRequest): ResponseEntity<UserResponse> {
+        val userUuid = ControllerUtils.getUserPrincipalFromSecurityContext().uuid
+        logger.info { "Received request to connect user info to user: $userUuid, webSessionUuid: ${connectRequest.webSessionUuid}" }
+        val user = userService.connectUserInfo(userUuid, connectRequest.webSessionUuid)
+        return ResponseEntity.ok(UserResponse(user))
     }
 
     @PostMapping("/me/password")

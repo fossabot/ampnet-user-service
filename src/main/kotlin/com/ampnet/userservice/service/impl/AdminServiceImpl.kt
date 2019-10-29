@@ -50,6 +50,7 @@ class AdminServiceImpl(
 
     @Transactional
     override fun createUser(request: CreateAdminUserRequest): User {
+        // TODO: remove
         if (userRepository.findByEmail(request.email).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS, "Email: ${request.email} already used")
         }

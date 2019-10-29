@@ -14,7 +14,7 @@ import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.security.WithMockCrowdfoundUser
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.UserService
-import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
+import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -52,16 +52,13 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     @BeforeEach
     fun initTestData() {
+        databaseCleanerService.deleteAllUsers()
         testUser = TestUser()
         testContext = TestContext()
     }
 
     @Test
     fun mustBeAbleToSignUpUser() {
-        suppose("User info exists") {
-            databaseCleanerService.deleteAllUsers()
-            createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        }
         suppose("The user send request to sign up") {
             val requestJson = generateSignupJson()
             testContext.mvcResult = mockMvc.perform(
@@ -161,7 +158,6 @@ class RegistrationControllerTest : ControllerTestBase() {
     @Test
     fun signupShouldFailIfUserAlreadyExists() {
         suppose("User exists in database") {
-            databaseCleanerService.deleteAllUsers()
             saveTestUser()
         }
 
@@ -183,10 +179,6 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     @Test
     fun signupUsingFacebookMethod() {
-        suppose("User info exists") {
-            databaseCleanerService.deleteAllUsers()
-            createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        }
         suppose("Social service is mocked to return Facebook user") {
             testContext.socialEmail = "johnsmith@gmail.com"
             Mockito.`when`(socialService.getFacebookEmail(testContext.token))
@@ -200,10 +192,6 @@ class RegistrationControllerTest : ControllerTestBase() {
 
     @Test
     fun signupUsingGoogleMethod() {
-        suppose("User info exists") {
-            databaseCleanerService.deleteAllUsers()
-            createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        }
         suppose("Social service is mocked to return Google user") {
             testContext.socialEmail = "johnsmith@gmail.com"
             Mockito.`when`(socialService.getGoogleEmail(testContext.token))
@@ -343,7 +331,6 @@ class RegistrationControllerTest : ControllerTestBase() {
     @Test
     fun mustReturnTrueIfEmailIsUsed() {
         suppose("User exists") {
-            databaseCleanerService.deleteAllUsers()
             saveTestUser()
         }
 
@@ -401,10 +388,8 @@ class RegistrationControllerTest : ControllerTestBase() {
     }
 
     private fun createUnconfirmedUser() {
-        databaseCleanerService.deleteAllUsers()
-        createUserInfo(email = testUser.email, webSessionUuid = testUser.webSessionUuid)
-        val request = CreateUserWithUserInfo(
-            testUser.webSessionUuid, testUser.email, testUser.password, testUser.authMethod)
+        val request = CreateUserServiceRequest(testUser.first, testUser.last, testUser.email,
+            testUser.password, testUser.authMethod)
         val savedUser = userService.createUser(request)
         testUser.uuid = savedUser.uuid
         val user = userService.find(testUser.uuid) ?: fail("User must not be null")
@@ -414,6 +399,8 @@ class RegistrationControllerTest : ControllerTestBase() {
     private fun generateSignupJson(): String {
         return """
             |{
+            |  "first_name": "${testUser.first}",
+            |  "last_name": "${testUser.last}",
             |  "web_session_uuid" : "${testUser.webSessionUuid}",
             |  "signup_method" : "${testUser.authMethod}",
             |  "user_info" : {
@@ -428,6 +415,8 @@ class RegistrationControllerTest : ControllerTestBase() {
         suppose("User has obtained token on frontend and sends signup request") {
             val request = """
             |{
+            |  "first_name": "First",
+            |  "last_name": "Last",
             |  "web_session_uuid" : "$webSessionUuid",
             |  "signup_method" : "$authMethod",
             |  "user_info" : {
@@ -452,6 +441,7 @@ class RegistrationControllerTest : ControllerTestBase() {
             assertThat(userResponse.firstName).isNotEmpty()
             assertThat(userResponse.lastName).isNotEmpty()
             assertThat(userResponse.enabled).isTrue()
+            assertThat(userResponse.verified).isFalse()
         }
 
         verify("The user is stored in database") {
@@ -474,6 +464,8 @@ class RegistrationControllerTest : ControllerTestBase() {
         var password = "abcdefgh"
         var authMethod = AuthMethod.EMAIL
         var webSessionUuid = "1234-1234-1234-1234"
+        val first = "first"
+        val last = "last"
     }
 
     private class TestContext {
