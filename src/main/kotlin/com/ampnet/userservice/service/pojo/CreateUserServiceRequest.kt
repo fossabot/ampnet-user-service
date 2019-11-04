@@ -8,9 +8,6 @@ import javax.validation.constraints.NotNull
 
 data class CreateUserServiceRequest(
 
-    // @NotNull
-    // val webSessionUuid: String,
-
     @NotNull
     val firstName: String,
 
