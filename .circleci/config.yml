@@ -36,12 +36,18 @@ commands:
           key: v1-dependencies-{{ checksum "build.gradle.kts" }}
 
 jobs:
-  test:
-    executor: java-db-executor
+  assemble:
+    executor: java-executor
+    working_directory: ~/user-service
     steps:
       - checkout
       - gradle-depenencies
+      - run: gradle assemble
 
+  test:
+    executor: java-db-executor
+    working_directory: ~/user-service
+    steps:
       - run:
           name: Run all tests
           command: gradle test
@@ -54,9 +60,8 @@ jobs:
 
   codeQuality:
     executor: java-executor
+    working_directory: ~/user-service
     steps:
-      - checkout
-      - gradle-depenencies
       - run:
           name: Kotlin linter
           command: gradle ktlinCheck
@@ -70,9 +75,6 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "96:2c:54:e3:52:7c:c8:89:e3:0f:58:44:d8:be:71:fb"
-      - checkout
-      - gradle-depenencies
-
       - run: gradle build
       - run:
           name: Copy docs to static resources
@@ -83,10 +85,15 @@ jobs:
 
 workflows:
   version: 2.1
-  testAndDeploy:
+  test-deploy:
     jobs:
-      - test
-      - codeQuality
+      - assemble
+      - test:
+          requires:
+            - assemble
+      - codeQuality:
+          requires:
+            - assemble
       - deploy:
           requires:
             - test
