@@ -7,7 +7,7 @@ executors:
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
-    working_directory: /tmp
+    working_directory: ~/workspace
 
   java-db-executor:
     docker:
@@ -20,7 +20,7 @@ executors:
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
-    working_directory: /tmp
+    working_directory: ~/workspace
 
 commands:
   gradle-depenencies:
@@ -39,14 +39,13 @@ jobs:
   assemble:
     executor: java-executor
     steps:
-      - run: mkdir -p workspace
       - checkout
       - gradle-depenencies
       - run: gradle assemble
       - persist_to_workspace:
-          root: /tmp
+          root: ~/workspace
           paths:
-            - workspace
+            - .
 
   test:
     executor: java-db-executor
