@@ -5,6 +5,9 @@ executors:
     docker:
       - image: circleci/openjdk:8-jdk
     environment:
+      # Configure the JVM and Gradle to avoid OOM errors
+      _JAVA_OPTIONS: "-Xmx3g"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       JVM_OPTS: -Xmx3200m
       TERM: dumb
 
@@ -17,6 +20,9 @@ executors:
           POSTGRES_DB: user_service_test
           POSTGRES_PASSWORD: password
     environment:
+      # Configure the JVM and Gradle to avoid OOM errors
+      _JAVA_OPTIONS: "-Xmx3g"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       JVM_OPTS: -Xmx3200m
       TERM: dumb
 
