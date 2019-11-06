@@ -29,6 +29,7 @@ executors:
 jobs:
   build:
     executor: java-executor
+    working_directory: ~/workspace
     steps:
       - checkout
       - restore_cache:
@@ -49,14 +50,15 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - build
+            - .
 
   test:
     executor: java-db-executor
+    working_directory: ~/workspace
     steps:
-      - checkout
+#      - checkout
       - attach_workspace:
-          at: .
+          at: ~/workspace
       - run:
           name: Run all tests
           command: ./gradlew test
@@ -69,10 +71,11 @@ jobs:
 
   code-quality:
     executor: java-executor
+    working_directory: ~/workspace
     steps:
-      - checkout
+#      - checkout
       - attach_workspace:
-          at: .
+          at: ~/workspace
       - run:
           name: Kotlin linter
           command: ./gradlew ktlinCheck
@@ -82,8 +85,9 @@ jobs:
 
   deploy:
     executor: java-db-executor
+    working_directory: ~/workspace
     steps:
-      - checkout
+#      - checkout
       - attach_workspace:
           at: .
       - run: ./gradlew build
