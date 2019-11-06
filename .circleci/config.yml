@@ -51,7 +51,7 @@ jobs:
     executor: java-db-executor
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/workspace
       - run:
           name: Run all tests
           command: gradle test
@@ -66,7 +66,7 @@ jobs:
     executor: java-executor
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/workspace
       - run:
           name: Kotlin linter
           command: gradle ktlinCheck
