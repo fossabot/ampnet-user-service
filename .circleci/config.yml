@@ -7,6 +7,7 @@ executors:
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
+    working_directory: /tmp
 
   java-db-executor:
     docker:
@@ -19,6 +20,7 @@ executors:
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
+    working_directory: /tmp
 
 commands:
   gradle-depenencies:
@@ -36,16 +38,21 @@ commands:
 jobs:
   assemble:
     executor: java-executor
-    working_directory: ~/user-service
     steps:
+      - run: mkdir -p workspace
       - checkout
       - gradle-depenencies
       - run: gradle assemble
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - workspace
 
   test:
     executor: java-db-executor
-    working_directory: /tmp/user-service
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Run all tests
           command: gradle test
@@ -58,8 +65,9 @@ jobs:
 
   codeQuality:
     executor: java-executor
-    working_directory: /tmp/user-service
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Kotlin linter
           command: gradle ktlinCheck
