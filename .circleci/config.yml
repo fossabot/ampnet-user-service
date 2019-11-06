@@ -26,19 +26,16 @@ executors:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
 
-jobs:
-  build:
-    executor: java-executor
-    working_directory: ~/workspace
+commands:
+  gradle-depenencies:
     steps:
-      - checkout
       - restore_cache:
           key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: v1-gradle-cache-{{ checksum "build.gradle.kts" }}
       - run:
           name: Install dependencies
-          command: ./gradlew build -x check
+          command: ./gradlew dependencies
       - save_cache:
           paths:
             - ~/.gradle/wrapper
@@ -47,18 +44,13 @@ jobs:
           paths:
             - ~/.gradle/caches
           key: v1-gradle-cache-{{ checksum "build.gradle.kts" }}
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
 
+jobs:
   test:
     executor: java-db-executor
-    working_directory: ~/workspace
     steps:
-#      - checkout
-      - attach_workspace:
-          at: ~/workspace
+      - checkout
+      - gradle-depenencies
       - run:
           name: Run all tests
           command: ./gradlew test
@@ -71,11 +63,9 @@ jobs:
 
   code-quality:
     executor: java-executor
-    working_directory: ~/workspace
     steps:
-#      - checkout
-      - attach_workspace:
-          at: ~/workspace
+      - checkout
+      - gradle-depenencies
       - run:
           name: Kotlin linter
           command: ./gradlew ktlinCheck
@@ -85,11 +75,9 @@ jobs:
 
   deploy:
     executor: java-db-executor
-    working_directory: ~/workspace
     steps:
-#      - checkout
-      - attach_workspace:
-          at: .
+      - checkout
+      - gradle-depenencies
       - run: ./gradlew build
       - run:
           name: Copy docs to static resources
@@ -102,17 +90,12 @@ workflows:
   version: 2.1
   test-deploy:
     jobs:
-      - build
-      - code-quality:
-          requires:
-            - build
-      - test:
-          requires:
-            - build
+      - code-quality
+      - test
       - deploy:
           requires:
-            - test
             - code-quality
+            - test
           filters:
             branches:
               only: master
