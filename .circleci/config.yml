@@ -4,7 +4,6 @@ executors:
   java-executor:
     docker:
       - image: circleci/openjdk:8-jdk
-    working_directory: ~/repo
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
@@ -17,7 +16,6 @@ executors:
           POSTGRES_USER: user_service_test
           POSTGRES_DB: user_service_test
           POSTGRES_PASSWORD: password
-    working_directory: ~/repo
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
@@ -46,7 +44,7 @@ jobs:
 
   test:
     executor: java-db-executor
-    working_directory: ~/user-service
+    working_directory: /tmp/user-service
     steps:
       - run:
           name: Run all tests
@@ -60,7 +58,7 @@ jobs:
 
   codeQuality:
     executor: java-executor
-    working_directory: ~/user-service
+    working_directory: /tmp/user-service
     steps:
       - run:
           name: Kotlin linter
