@@ -4,9 +4,12 @@ import com.ampnet.core.jwt.JwtTokenUtils
 import com.ampnet.core.jwt.UserPrincipal
 import com.ampnet.core.jwt.exception.TokenException
 import com.ampnet.userservice.config.ApplicationProperties
+import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.persistence.model.RefreshToken
+import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.RefreshTokenRepository
+import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.service.TokenService
 import com.ampnet.userservice.service.pojo.AccessAndRefreshToken
 import java.time.ZonedDateTime
@@ -17,13 +20,15 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class TokenServiceImpl(
     private val applicationProperties: ApplicationProperties,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val roleRepository: RoleRepository
 ) : TokenService {
 
     private companion object {
         const val REFRESH_TOKEN_LENGTH = 128
     }
     private val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + listOf('-', '_', '+')
+    private val adminRole: Role by lazy { roleRepository.getOne(UserRoleType.ADMIN.id) }
 
     @Transactional
     override fun generateAccessAndRefreshForUser(user: User): AccessAndRefreshToken {
@@ -83,6 +88,7 @@ class TokenServiceImpl(
         user.email,
         user.getFullName(),
         user.getAuthorities().asSequence().map { it.authority }.toSet(),
-        user.enabled
+        user.enabled,
+        (user.userInfo != null || user.role == adminRole)
     )
 }

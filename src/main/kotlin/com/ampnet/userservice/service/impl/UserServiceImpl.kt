@@ -8,17 +8,15 @@ import com.ampnet.userservice.exception.InvalidRequestException
 import com.ampnet.userservice.exception.ResourceAlreadyExistsException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.grpc.mailservice.MailService
-import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.MailToken
 import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
-import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.MailTokenRepository
 import com.ampnet.userservice.persistence.repository.RoleRepository
 import com.ampnet.userservice.persistence.repository.UserInfoRepository
 import com.ampnet.userservice.persistence.repository.UserRepository
 import com.ampnet.userservice.service.UserService
-import com.ampnet.userservice.service.pojo.CreateUserWithUserInfo
+import com.ampnet.userservice.service.pojo.CreateUserServiceRequest
 import java.time.ZonedDateTime
 import java.util.UUID
 import mu.KLogging
@@ -32,7 +30,6 @@ class UserServiceImpl(
     private val roleRepository: RoleRepository,
     private val userInfoRepository: UserInfoRepository,
     private val mailTokenRepository: MailTokenRepository,
-    private val forgotPasswordTokenRepository: ForgotPasswordTokenRepository,
     private val mailService: MailService,
     private val passwordEncoder: PasswordEncoder,
     private val applicationProperties: ApplicationProperties
@@ -43,20 +40,32 @@ class UserServiceImpl(
     private val userRole: Role by lazy { roleRepository.getOne(UserRoleType.USER.id) }
 
     @Transactional
-    override fun createUser(request: CreateUserWithUserInfo): User {
+    override fun createUser(request: CreateUserServiceRequest): User {
         if (userRepository.findByEmail(request.email).isPresent) {
             throw ResourceAlreadyExistsException(ErrorCode.REG_USER_EXISTS,
                 "Trying to create user with email that already exists: ${request.email}")
         }
-
         val user = createUserFromRequest(request)
-        userRepository.save(user)
         if (user.authMethod == AuthMethod.EMAIL && user.enabled.not()) {
             val mailToken = createMailToken(user)
             mailService.sendConfirmationMail(user.email, mailToken.token.toString())
         }
         logger.debug { "Created user: ${user.email}" }
         return user
+    }
+
+    @Transactional
+    override fun connectUserInfo(userUuid: UUID, webSessionUuid: String): User {
+        val user = find(userUuid)
+            ?: throw ResourceNotFoundException(ErrorCode.USER_MISSING, "Missing user with uuid: $userUuid")
+        val userInfo = userInfoRepository.findByWebSessionUuid(webSessionUuid).orElseThrow {
+            throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
+                "Missing UserInfo with Identyum webSessionUuid: $webSessionUuid")
+        }
+        userInfo.connected = true
+        user.userInfo = userInfo
+        logger.debug { "Connected UserInfo: ${userInfo.id} to user: ${user.uuid}" }
+        return userRepository.save(user)
     }
 
     @Transactional(readOnly = true)
@@ -78,7 +87,6 @@ class UserServiceImpl(
             }
             val user = mailToken.user
             user.enabled = true
-
             mailTokenRepository.delete(mailToken)
             logger.debug { "Email confirmed for user: ${user.email}" }
             return userRepository.save(user)
@@ -91,7 +99,6 @@ class UserServiceImpl(
         if (user.authMethod != AuthMethod.EMAIL) {
             return
         }
-
         mailTokenRepository.findByUserUuid(user.uuid).ifPresent {
             mailTokenRepository.delete(it)
         }
@@ -99,60 +106,15 @@ class UserServiceImpl(
         mailService.sendConfirmationMail(user.email, mailToken.token.toString())
     }
 
-    @Transactional
-    override fun changePassword(user: User, oldPassword: String, newPassword: String): User {
-        if (user.authMethod != AuthMethod.EMAIL) {
-            throw InvalidRequestException(ErrorCode.AUTH_INVALID_LOGIN_METHOD, "Cannot change password")
-        }
-        if (passwordEncoder.matches(oldPassword, user.password).not()) {
-            throw InvalidRequestException(ErrorCode.USER_DIFFERENT_PASSWORD, "Invalid old password")
-        }
-        logger.info { "Changing password for user: ${user.uuid}" }
-        user.password = passwordEncoder.encode(newPassword)
-        return userRepository.save(user)
-    }
-
-    @Transactional
-    override fun changePasswordWithToken(token: UUID, newPassword: String): User {
-        val forgotToken = forgotPasswordTokenRepository.findByToken(token).orElseThrow {
-            throw ResourceNotFoundException(ErrorCode.AUTH_FORGOT_TOKEN_MISSING, "Missing forgot token: $token")
-        }
-        if (forgotToken.isExpired()) {
-            throw InvalidRequestException(ErrorCode.AUTH_FORGOT_TOKEN_EXPIRED, "Expired token: $token")
-        }
-        val user = forgotToken.user
-        forgotPasswordTokenRepository.delete(forgotToken)
-        user.password = passwordEncoder.encode(newPassword)
-        logger.info { "Changing password using forgot password token for user: ${user.email}" }
-        return userRepository.save(user)
-    }
-
-    @Transactional
-    override fun generateForgotPasswordToken(email: String): Boolean {
-        val user = find(email) ?: return false
-        if (user.authMethod != AuthMethod.EMAIL) {
-            throw InvalidRequestException(ErrorCode.AUTH_INVALID_LOGIN_METHOD, "Cannot change password")
-        }
-        logger.info { "Generating forgot password token for user: ${user.email}" }
-        val forgotPasswordToken = ForgotPasswordToken(0, user, UUID.randomUUID(), ZonedDateTime.now())
-        forgotPasswordTokenRepository.save(forgotPasswordToken)
-        mailService.sendResetPasswordMail(user.email, forgotPasswordToken.token.toString())
-        return true
-    }
-
-    private fun createUserFromRequest(request: CreateUserWithUserInfo): User {
-        val userInfo = userInfoRepository.findByWebSessionUuid(request.webSessionUuid).orElseThrow {
-            throw ResourceNotFoundException(ErrorCode.REG_IDENTYUM,
-                "Missing UserInfo with Identyum webSessionUuid: ${request.webSessionUuid}")
-        }
+    private fun createUserFromRequest(request: CreateUserServiceRequest): User {
         val user = User(
             UUID.randomUUID(),
-            userInfo.firstName,
-            userInfo.lastName,
+            request.firstName,
+            request.lastName,
             request.email,
             null,
             request.authMethod,
-            userInfo,
+            null,
             userRole,
             ZonedDateTime.now(),
             true
@@ -161,8 +123,7 @@ class UserServiceImpl(
             user.enabled = applicationProperties.mail.confirmationNeeded.not()
             user.password = passwordEncoder.encode(request.password.orEmpty())
         }
-        userInfo.connected = true
-        return user
+        return userRepository.save(user)
     }
 
     private fun createMailToken(user: User): MailToken {

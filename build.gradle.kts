@@ -24,7 +24,7 @@ plugins {
 }
 
 group = "com.ampnet"
-version = "0.5.0"
+version = "0.5.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -54,7 +54,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:6.2")
     implementation("net.devh:grpc-spring-boot-starter:2.5.1.RELEASE")
     implementation("org.iban4j:iban4j:3.2.1")
-    implementation("com.github.AMPnet:jwt:0.0.2")
+    implementation("com.github.AMPnet:jwt:0.0.3")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -93,10 +93,6 @@ protobuf {
 jib {
     val dockerUsername: String = System.getenv("DOCKER_USERNAME") ?: "DOCKER_USERNAME"
     val dockerPassword: String = System.getenv("DOCKER_PASSWORD") ?: "DOCKER_PASSWORD"
-    val identyumUsername: String = System.getenv("IDENTYUM_USERNAME") ?: "IDENTYUM_USERNAME"
-    val identyumPassword: String = System.getenv("IDENTYUM_PASSWORD") ?: "IDENTYUM_PASSWORD"
-    val identyumKey: String = System.getenv("IDENTYUM_KEY") ?: "IDENTYUM_KEY"
-
     to {
         image = "ampnet/crowdfunding-user-service:$version"
         auth {
@@ -107,11 +103,6 @@ jib {
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
-        environment = mapOf(
-            "IDENTYUM_USERNAME" to identyumUsername,
-            "IDENTYUM_PASSWORD" to identyumPassword,
-            "IDENTYUM_KEY" to identyumKey
-        )
     }
 }
 

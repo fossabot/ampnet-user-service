@@ -14,6 +14,7 @@ import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.InvalidLoginMethodException
 import com.ampnet.userservice.exception.ResourceNotFoundException
 import com.ampnet.userservice.persistence.model.User
+import com.ampnet.userservice.service.PasswordService
 import com.ampnet.userservice.service.SocialService
 import com.ampnet.userservice.service.TokenService
 import com.ampnet.userservice.service.UserService
@@ -23,7 +24,6 @@ import javax.validation.Valid
 import mu.KLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -33,8 +33,8 @@ class AuthenticationController(
     private val userService: UserService,
     private val socialService: SocialService,
     private val tokenService: TokenService,
-    private val objectMapper: ObjectMapper,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordService: PasswordService,
+    private val objectMapper: ObjectMapper
 ) {
 
     companion object : KLogging()
@@ -51,15 +51,15 @@ class AuthenticationController(
             }
             AuthMethod.FACEBOOK -> {
                 val userInfo: TokenRequestSocialInfo = objectMapper.convertValue(tokenRequest.credentials)
-                val email = socialService.getFacebookEmail(userInfo.token)
-                val user = getUserByEmail(email)
+                val socialUser = socialService.getFacebookEmail(userInfo.token)
+                val user = getUserByEmail(socialUser.email)
                 validateSocialLogin(user, AuthMethod.FACEBOOK)
                 user
             }
             AuthMethod.GOOGLE -> {
                 val userInfo: TokenRequestSocialInfo = objectMapper.convertValue(tokenRequest.credentials)
-                val email = socialService.getGoogleEmail(userInfo.token)
-                val user = getUserByEmail(email)
+                val socialUser = socialService.getGoogleEmail(userInfo.token)
+                val user = getUserByEmail(socialUser.email)
                 validateSocialLogin(user, AuthMethod.GOOGLE)
                 user
             }
@@ -84,7 +84,7 @@ class AuthenticationController(
     @PostMapping("/forgot-password/token")
     fun generateForgotPasswordToken(@RequestBody request: MailCheckRequest): ResponseEntity<Unit> {
         logger.info { "Received request to generate forgot password token for email: ${request.email}" }
-        val generated = userService.generateForgotPasswordToken(request.email)
+        val generated = passwordService.generateForgotPasswordToken(request.email)
         return if (generated) {
             ResponseEntity.ok().build()
         } else {
@@ -95,7 +95,7 @@ class AuthenticationController(
     @PostMapping("/forgot-password")
     fun changePasswordWithToken(@RequestBody request: ChangePasswordTokenRequest): ResponseEntity<UserResponse> {
         logger.info { "Received request for forgot password, token = ${request.token}" }
-        val user = userService.changePasswordWithToken(request.token, request.newPassword)
+        val user = passwordService.changePasswordWithToken(request.token, request.newPassword)
         return ResponseEntity.ok(UserResponse(user))
     }
 
@@ -109,7 +109,7 @@ class AuthenticationController(
 
     private fun validateEmailLogin(user: User, providedPassword: String) {
         val storedPasswordHash = user.password
-        if (!passwordEncoder.matches(providedPassword, storedPasswordHash)) {
+        if (!passwordService.verifyPasswords(providedPassword, storedPasswordHash)) {
             logger.debug { "User passwords do not match" }
             throw BadCredentialsException("Wrong password!")
         }

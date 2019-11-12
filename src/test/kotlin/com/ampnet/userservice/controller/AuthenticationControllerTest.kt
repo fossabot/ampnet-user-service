@@ -8,11 +8,13 @@ import com.ampnet.userservice.controller.pojo.request.MailCheckRequest
 import com.ampnet.userservice.controller.pojo.request.RefreshTokenRequest
 import com.ampnet.userservice.controller.pojo.response.AccessRefreshTokenResponse
 import com.ampnet.userservice.enums.AuthMethod
+import com.ampnet.userservice.enums.UserRoleType
 import com.ampnet.userservice.exception.ErrorCode
 import com.ampnet.userservice.exception.ErrorResponse
 import com.ampnet.userservice.exception.SocialException
 import com.ampnet.userservice.persistence.model.ForgotPasswordToken
 import com.ampnet.userservice.persistence.model.RefreshToken
+import com.ampnet.userservice.persistence.model.Role
 import com.ampnet.userservice.persistence.model.User
 import com.ampnet.userservice.persistence.repository.ForgotPasswordTokenRepository
 import com.ampnet.userservice.persistence.repository.RefreshTokenRepository
@@ -53,6 +55,9 @@ class AuthenticationControllerTest : ControllerTestBase() {
     private val regularTestUser = RegularTestUser()
     private val facebookTestUser = FacebookTestUser()
     private val googleTestUser = GoogleTestUser()
+    private val adminRole: Role by lazy {
+        roleRepository.getOne(UserRoleType.ADMIN.id)
+    }
 
     private lateinit var testContext: TestContext
 
@@ -106,7 +111,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     fun signInFacebook() {
         suppose("Social service is mocked to return valid Facebook user.") {
             Mockito.`when`(socialService.getFacebookEmail(facebookTestUser.fbToken))
-                    .thenReturn(facebookTestUser.email)
+                    .thenReturn(generateSocialUser(facebookTestUser.email))
         }
         suppose("Social user identified by Facebook exists in our database.") {
             testContext.user = createUser(facebookTestUser.email, facebookTestUser.authMethod)
@@ -142,7 +147,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
     fun signInGoogle() {
         suppose("Social service is mocked to return valid Google user.") {
             Mockito.`when`(socialService.getGoogleEmail(googleTestUser.googleToken))
-                    .thenReturn(googleTestUser.email)
+                    .thenReturn(generateSocialUser(googleTestUser.email))
         }
         suppose("Social user identified by Facebook exists in our database.") {
             testContext.user = createUser(googleTestUser.email, googleTestUser.authMethod)
@@ -233,7 +238,7 @@ class AuthenticationControllerTest : ControllerTestBase() {
         }
         suppose("Social service is mocked to return google user with same email as user registered in regular way.") {
             Mockito.`when`(socialService.getGoogleEmail(googleTestUser.googleToken))
-                    .thenReturn(googleTestUser.email)
+                    .thenReturn(generateSocialUser(googleTestUser.email))
         }
         verify("The user cannot login using social method.") {
             val requestBody = """
@@ -464,7 +469,8 @@ class AuthenticationControllerTest : ControllerTestBase() {
             testContext.user.email,
             testContext.user.getFullName(),
             testContext.user.getAuthorities().asSequence().map { it.authority }.toSet(),
-            testContext.user.enabled
+            testContext.user.enabled,
+            (testContext.user.userInfo != null || testContext.user.role == adminRole)
         )
         assertThat(tokenPrincipal).isEqualTo(storedUserPrincipal)
     }
