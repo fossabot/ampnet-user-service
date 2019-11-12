@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
+import org.springframework.transaction.annotation.Transactional
 
 @Import(JsonConfig::class, ApplicationProperties::class)
 class TokenServiceTest : JpaServiceTestBase() {
@@ -23,7 +24,7 @@ class TokenServiceTest : JpaServiceTestBase() {
     private lateinit var refreshTokenRepository: RefreshTokenRepository
     private lateinit var testContext: TestContext
     private val service: TokenService by lazy {
-        TokenServiceImpl(applicationProperties, refreshTokenRepository, roleRepository)
+        TokenServiceImpl(applicationProperties, refreshTokenRepository)
     }
     private val adminRole: Role by lazy {
         roleRepository.getOne(UserRoleType.ADMIN.id)
@@ -86,6 +87,24 @@ class TokenServiceTest : JpaServiceTestBase() {
         }
     }
 
+    @Test
+    @Transactional
+    fun mustDeleteRefreshTokenToCreateNewOne() {
+        suppose("User has refresh token") {
+            testContext.user = createUser("user@mail.com")
+            service.generateAccessAndRefreshForUser(testContext.user)
+        }
+        suppose("User request new refresh token") {
+            testContext.refreshToken = service.generateAccessAndRefreshForUser(testContext.user).refreshToken
+        }
+
+        verify("User has only new refresh token") {
+            val refreshToken = refreshTokenRepository.findByUserUuid(testContext.user.uuid)
+            assertThat(refreshToken).isNotNull
+            assertThat(refreshToken.get().token).isEqualTo(testContext.refreshToken)
+        }
+    }
+
     private fun verifyAccessTokenVerifiedFiled(accessToken: String, verified: Boolean) {
         val signingKey = applicationProperties.jwt.signingKey
         val userPrincipal = JwtTokenUtils.decodeToken(accessToken, signingKey)
@@ -99,5 +118,6 @@ class TokenServiceTest : JpaServiceTestBase() {
 
     private class TestContext {
         lateinit var user: User
+        lateinit var refreshToken: String
     }
 }

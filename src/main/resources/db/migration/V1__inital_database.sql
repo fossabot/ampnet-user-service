@@ -48,19 +48,19 @@ CREATE TABLE app_user (
 CREATE TABLE mail_token (
     id SERIAL PRIMARY KEY,
     user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
-    token UUID NOT NULL,
+    token UUID NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL
 );
 CREATE TABLE refresh_token(
     id SERIAL PRIMARY KEY,
-    token VARCHAR(128) NOT NULL,
+    token VARCHAR(128) NOT NULL UNIQUE,
     user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 CREATE TABLE forgot_password_token(
     id SERIAL PRIMARY KEY,
     user_uuid UUID REFERENCES app_user(uuid) NOT NULL,
-    token UUID NOT NULL,
+    token UUID NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 

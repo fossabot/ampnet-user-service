@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface RefreshTokenRepository : JpaRepository<RefreshToken, Int> {
     fun findByToken(token: String): Optional<RefreshToken>
     fun findByUserUuid(userUuid: UUID): Optional<RefreshToken>
+    fun deleteByUserUuid(userUuid: UUID): Int
 }
