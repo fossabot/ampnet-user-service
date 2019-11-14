@@ -24,7 +24,7 @@ plugins {
 }
 
 group = "com.ampnet"
-version = "0.5.1"
+version = "0.5.2"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -39,7 +39,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
-    implementation("org.springframework.cloud:spring-cloud-starter-kubernetes-config:1.0.3.RELEASE")
     implementation("org.springframework.social:spring-social-facebook:2.0.3.RELEASE")
     implementation("com.github.spring-social:spring-social-google:1.1.3")
 
@@ -51,7 +50,6 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
 
     implementation("io.github.microutils:kotlin-logging:1.7.6")
-    implementation("net.logstash.logback:logstash-logback-encoder:6.2")
     implementation("net.devh:grpc-spring-boot-starter:2.5.1.RELEASE")
     implementation("org.iban4j:iban4j:3.2.1")
     implementation("com.github.AMPnet:jwt:0.0.3")
