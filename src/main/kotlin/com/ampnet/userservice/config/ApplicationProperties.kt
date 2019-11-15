@@ -6,10 +6,11 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "com.ampnet.userservice")
 class ApplicationProperties {
-    var jwt: JwtProperties = JwtProperties()
-    var mail: MailProperties = MailProperties()
-    var identyum: IdentyumProperties = IdentyumProperties()
-    var testUser: TestUserProperties = TestUserProperties()
+    val jwt: JwtProperties = JwtProperties()
+    val mail: MailProperties = MailProperties()
+    val identyum: IdentyumProperties = IdentyumProperties()
+    val testUser: TestUserProperties = TestUserProperties()
+    val grpc: GrpcProperties = GrpcProperties()
 }
 
 @Suppress("MagicNumber")
@@ -32,4 +33,9 @@ class IdentyumProperties {
 
 class TestUserProperties {
     var enabled: Boolean = false
+}
+
+@Suppress("MagicNumber")
+class GrpcProperties {
+    var mailServiceTimeout: Long = 2000
 }
