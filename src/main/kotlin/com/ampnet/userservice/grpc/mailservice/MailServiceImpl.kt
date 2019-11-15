@@ -22,7 +22,6 @@ class MailServiceImpl(
     private val mailServiceStub: MailServiceGrpc.MailServiceStub by lazy {
         val channel = grpcChannelFactory.createChannel("mail-service")
         MailServiceGrpc.newStub(channel)
-            .withDeadlineAfter(applicationProperties.grpc.mailServiceTimeout, TimeUnit.MILLISECONDS)
     }
 
     override fun sendConfirmationMail(email: String, token: String) {
@@ -32,7 +31,7 @@ class MailServiceImpl(
             .setToken(token)
             .build()
 
-        mailServiceStub.sendMailConfirmation(request, getStreamObserver("confirmation mail to: $email"))
+        serviceWithTimeout().sendMailConfirmation(request, getStreamObserver("confirmation mail to: $email"))
     }
 
     override fun sendResetPasswordMail(email: String, token: String) {
@@ -42,8 +41,11 @@ class MailServiceImpl(
             .setToken(token)
             .build()
 
-        mailServiceStub.sendResetPassword(request, getStreamObserver("forgot password mail to: $email"))
+        serviceWithTimeout().sendResetPassword(request, getStreamObserver("forgot password mail to: $email"))
     }
+
+    private fun serviceWithTimeout() = mailServiceStub
+        .withDeadlineAfter(applicationProperties.grpc.mailServiceTimeout, TimeUnit.MILLISECONDS)
 
     private fun getStreamObserver(message: String) = object : StreamObserver<Empty> {
         override fun onNext(value: Empty?) {
