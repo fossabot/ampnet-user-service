@@ -5,6 +5,7 @@ import com.ampnet.mailservice.proto.MailConfirmationRequest
 import com.ampnet.mailservice.proto.MailServiceGrpc
 import com.ampnet.mailservice.proto.ResetPasswordRequest
 import com.ampnet.userservice.config.ApplicationProperties
+import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import java.util.concurrent.TimeUnit
 import mu.KLogging
@@ -26,22 +27,28 @@ class MailServiceImpl(
 
     override fun sendConfirmationMail(email: String, token: String) {
         logger.debug { "Sending confirmation mail to: $email" }
-        val request = MailConfirmationRequest.newBuilder()
-            .setEmail(email)
-            .setToken(token)
-            .build()
-
-        serviceWithTimeout().sendMailConfirmation(request, getStreamObserver("confirmation mail to: $email"))
+        try {
+            val request = MailConfirmationRequest.newBuilder()
+                .setEmail(email)
+                .setToken(token)
+                .build()
+            serviceWithTimeout().sendMailConfirmation(request, getStreamObserver("confirmation mail to: $email"))
+        } catch (ex: StatusRuntimeException) {
+            logger.warn("Failed to send confirmation mail. ${ex.localizedMessage}")
+        }
     }
 
     override fun sendResetPasswordMail(email: String, token: String) {
         logger.debug { "Sending reset password mail to: $email" }
-        val request = ResetPasswordRequest.newBuilder()
-            .setEmail(email)
-            .setToken(token)
-            .build()
-
-        serviceWithTimeout().sendResetPassword(request, getStreamObserver("forgot password mail to: $email"))
+        try {
+            val request = ResetPasswordRequest.newBuilder()
+                .setEmail(email)
+                .setToken(token)
+                .build()
+            serviceWithTimeout().sendResetPassword(request, getStreamObserver("reset password mail to: $email"))
+        } catch (ex: StatusRuntimeException) {
+            logger.warn { "Failed to send reset password mail. ${ex.localizedMessage}" }
+        }
     }
 
     private fun serviceWithTimeout() = mailServiceStub
